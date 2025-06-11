@@ -1,0 +1,11 @@
+/* login.component.scss */
+/* Centrar verticalmente el contenido en pantallas grandes */
+.vh-100 {
+  height: 50vh;
+}
+
+@media (max-width: 300px) {
+  .col-sm-6.d-none.d-sm-block {
+    display: none !important;
+  }
+}

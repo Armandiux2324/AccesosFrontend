@@ -1,0 +1,53 @@
+<div class="vh-100 d-flex">
+  <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
+    <div class="card shadow-sm w-75 p-4">
+      <div class="text-center mb-4">
+        <i class="fas fa-crow fa-2x" style="color: #709085;"></i>
+        <h2 class="card-title fw-bold mt-2">Iniciar sesión</h2>
+      </div>
+
+      <form (ngSubmit)="login()">
+        <div class="mb-3">
+          <label for="identificator" class="form-label">
+            Nombre de usuario o correo electrónico
+          </label>
+          <input
+            type="text"
+            id="identificator"
+            name="identificator"
+            class="form-control form-control-lg"
+            required
+            [(ngModel)]="identificator"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control form-control-lg"
+            required
+            [(ngModel)]="password"
+          />
+        </div>
+
+        <div class="d-grid mb-3">
+          <button class="btn btn-info btn-lg" type="submit">
+            Entrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 d-none d-md-flex align-items-center justify-content-center bg-light">
+    <img
+      src="/zz.png"
+      alt="Zig Zag Logo"
+      class="img-fluid"
+      style="max-height: 300px;"
+    />
+  </div>
+</div>
