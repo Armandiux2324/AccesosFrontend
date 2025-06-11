@@ -27,5 +27,31 @@ export class ApiService {
     const headers = new HttpHeaders().set('Authorization', token); 
     return this.http.get(this.url + '/users/' + { params, headers });
   }
+  
+  //Tickets
+  getTickets(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/tickets', { headers });
+  }
 
+  getTodaySales(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/today-sales', { headers });
+  }
+
+  getTotalSales(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/total-sales', { headers });
+  }
+
+  getLast7DaysSales(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(this.url + '/week-sales', { headers });
+  }
+
+  //Visitors
+  getTodayVisitors(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/today-visitors', { headers });
+  }
 }
