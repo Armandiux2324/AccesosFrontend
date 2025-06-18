@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -52,8 +51,7 @@ export class LoginComponent {
         }, 1000);
       },
       error: (error) => {
-        console.error(error);
-        this.toastMessage = 'Credenciales inválidas.';
+        this.toastMessage = "Error al iniciar sesión. Verifica tus datos";
         this.showErrorToast = true;
         this.autoHideToast();
       }

@@ -9,6 +9,7 @@ import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.compon
 import { SellerLayoutComponent } from './layouts/seller-layout/seller-layout.component';
 import { AdminSidebarComponent } from './shared/admin-sidebar/admin-sidebar.component';
 import { SellerSidebarComponent } from './shared/seller-sidebar/seller-sidebar.component';
+import { UsersComponent } from './pages/admin/users/users.component';
 
 @NgModule({
   declarations: [

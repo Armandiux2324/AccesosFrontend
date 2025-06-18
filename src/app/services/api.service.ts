@@ -17,15 +17,38 @@ export class ApiService {
     return this.http.post(this.url + '/login', { identificator: user, password: pass });
   }
 
-  getUsers(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.get(this.url + '/users', { headers });
-  }
-
-  getUserById(id: string, token: string) {
+  getUsers(id: string, token: string) {
     const params = new HttpParams().set('id', id);
     const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.get(this.url + '/users/' + { params, headers });
+    return this.http.get(this.url + '/users', { params, headers });
+  }
+
+  getUserById(id: number, token: string) {
+    const params = new HttpParams().set('id', id);
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/user', { params, headers });
+  }
+
+  addUser(name: string, username: string, email: string, password: string, role: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/users', { name, username, email, password, role }, { headers });
+  }
+
+  updateUser(id: string, name: string, username: string, email: string, role: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.put(this.url + '/users', { id, name, username, email, role }, { headers });
+  }
+
+  deleteUser(id: string, token: string) {
+    const params = new HttpParams().set('id', id);
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.delete(this.url + '/users/', { params, headers });
+  }
+
+  searchUsers(parameter: string, token: string) {
+    const params = new HttpParams().set('parameter', parameter);
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(this.url + '/search-users', { params, headers });
   }
   
   //Tickets

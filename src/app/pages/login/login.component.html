@@ -51,3 +51,38 @@
     />
   </div>
 </div>
+
+<div
+  aria-live="polite"
+  aria-atomic="true"
+  class="position-fixed top-0 start-50 translate-middle-x p-3"
+  style="z-index: 1055; width: 100%; max-width: 400px;"
+>
+  <div
+    *ngIf="showSuccessToast"
+    class="toast show align-items-center text-bg-success border-0 mx-auto"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showErrorToast"
+    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+</div>
