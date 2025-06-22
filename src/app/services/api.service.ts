@@ -39,6 +39,11 @@ export class ApiService {
     return this.http.put(this.url + '/users', { id, name, username, email, role }, { headers });
   }
 
+  changePassword(id: string, newPass: string, confPass: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.put(this.url + '/change-pass', { id, newPass, confPass }, { headers });
+  }
+
   deleteUser(id: string, token: string) {
     const params = new HttpParams().set('id', id);
     const headers = new HttpHeaders().set('Authorization', token);
@@ -76,5 +81,27 @@ export class ApiService {
   getTodayVisitors(token: string) {
     const headers = new HttpHeaders().set('Authorization', token); 
     return this.http.get(this.url + '/today-visitors', { headers });
+  }
+
+  //Prices
+  getPrices(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/prices', { headers });
+  }
+
+  updatePrices(updates: any[], token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.put(this.url + '/prices', { updates }, { headers });
+  }
+
+  //Capacity
+  getCapacity(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/capacity', { headers });
+  }
+
+  updateCapacity(id: string, capacity: number, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.put(this.url + '/capacity', { id, capacity }, { headers });
   }
 }

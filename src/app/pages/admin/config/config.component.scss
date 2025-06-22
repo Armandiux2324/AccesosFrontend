@@ -1,0 +1,36 @@
+.config-page {
+  .card {
+    border-radius: 1rem;
+    background: #ffffff;
+  }
+
+  h5 {
+    font-weight: 600;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .btn-dark {
+    background-color: #333;
+    border-color: #333;
+  }
+
+  .btn-dark:hover {
+    background-color: #222;
+  }
+
+  .modal-backdrop {
+    background-color: rgba(0,0,0,0.5);
+  }
+
+  .input-group > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .input-group > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}

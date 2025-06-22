@@ -1,1 +1,175 @@
-<p>config works!</p>
+<div class="d-flex">
+  <main class="flex-grow-1 p-4" style="margin-left: 4.5rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3">Configuración</h1>
+    </div>
+
+    <div class="config-page container-fluid h-100">
+      <div class="row gx-4 gy-4 h-100">
+
+        <div class="col-lg-6 d-flex flex-column">
+          <div class="card p-4 shadow-sm flex-grow-1 d-flex flex-column justify-content-center">
+            <h5 class="mb-4 text-center">Configurar tarifas</h5>
+
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Niños (0‑12 años de edad)</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="childPrice"
+                  name="childPrice"
+                />
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Adultos (13‑59 años de edad)</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="adultPrice"
+                  name="adultPrice"
+                />
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Adultos mayores (60+)</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="seniorPrice"
+                  name="seniorPrice"
+                />
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Personas con discapacidad</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="disabledPrice"
+                  name="disabledPrice"
+                />
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-4">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Descuento para acompañantes</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="companionDiscount"
+                  name="companionDiscount"
+                />
+              </div>
+            </div>
+
+            <div class="text-center">
+              <button class="btn btn-dark px-5" (click)="updatePrices()">Guardar cambios</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 d-flex flex-column">
+
+          <div class="card p-4 shadow-sm mb-4">
+            <h5 class="mb-3 text-center">Configurar límite de personas en las instalaciones</h5>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="capacity"
+                name="capacityLimit"
+                placeholder="Límite"
+              />
+              <button class="btn btn-dark" (click)="updateCapacity()">Guardar</button>
+            </div>
+          </div>
+
+          <div class="card p-4 shadow-sm flex-grow-1 d-flex flex-column justify-content-center">
+            <h5 class="mb-3 text-center">Configuraciones actuales</h5>
+            <ul class="list-unstyled mb-0">
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Niños (0‑12 años de edad)</span>
+                <strong>{{ prices[0].price }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Adultos (13‑59 años de edad)</span>
+                <strong>{{ prices[2].price }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Adultos mayores (60+)</span>
+                <strong>{{ prices[4].price }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Personas con discapacidad</span>
+                <strong>{{ prices[6].price }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Descuento para acompañantes</span>
+                <strong>{{ prices[8].price }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2">
+                <span>Capacidad actual</span>
+                <strong>{{ capacityObject.capacity }}</strong>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div
+    aria-live="polite"
+    aria-atomic="true"
+    class="position-fixed top-0 start-50 translate-middle-x p-3"
+    style="z-index: 1055; width: 100%; max-width: 400px;"
+  >
+    <div
+      *ngIf="showSuccessToast"
+      class="toast show align-items-center text-bg-success border-0 mx-auto"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ toastMessage }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="showErrorToast"
+      class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ toastMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

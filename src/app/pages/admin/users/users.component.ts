@@ -22,6 +22,9 @@ export class UsersComponent implements OnInit{
 
   showUpdateModal = false;
   dataToUpdate: any = {};
+  
+  showChangePassModal = false;
+  passwordData: any = {};
 
   showDeleteModal = false;
   userIdToDelete: any = null;
@@ -100,7 +103,6 @@ export class UsersComponent implements OnInit{
         console.error('Error fetching user data:', error);
       }
     }); 
-    
   }
 
   closeUpdateModal() {
@@ -112,7 +114,8 @@ export class UsersComponent implements OnInit{
       next: (data: any) => {
         this.toastMessage = 'Usuario actualizado exitosamente.';
         this.showSuccessToast = true;
-        this.autoHideToast();
+        this.autoHideToast()
+        3;
         this.getUsers();
         this.closeUpdateModal();
       },
@@ -121,6 +124,40 @@ export class UsersComponent implements OnInit{
         this.showErrorToast = true;
         this.autoHideToast();
         console.error('Error updating user:', error);
+      }
+    });
+  }
+
+  openChangePassModal(userId: number) {
+    this.passwordData = { id: userId, newPass: '', confPass: '' };
+    this.showChangePassModal = true;
+  }
+
+  closeChangePassModal() {
+    this.showChangePassModal = false;
+    this.passwordData = { id: '', newPass: '', confPass: '' };
+  }
+
+  confirmChangePass() {
+    if (this.passwordData.newPass !== this.passwordData.confPass) {
+      this.toastMessage = 'Las contraseñas no coinciden';
+      this.showErrorToast = true;
+      this.autoHideToast();
+      return;
+    }
+
+    this.api.changePassword(this.passwordData.id, this.passwordData.newPass, this.passwordData.confPass,this.token).subscribe({
+      next: () => {
+        this.toastMessage = 'Contraseña del usuario cambiada exitosamente.';
+        this.showSuccessToast = true;
+        this.autoHideToast();
+        this.closeChangePassModal();
+      },
+      error: (err: any) => {
+        this.toastMessage = 'Error al cambiar contraseña';
+        this.showErrorToast = true;
+        this.autoHideToast();
+        console.error('Error changing password:', err);
       }
     });
   }

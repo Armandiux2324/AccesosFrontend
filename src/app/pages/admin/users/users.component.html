@@ -45,6 +45,9 @@
             <button class="btn btn-sm btn-outline-primary" (click)="openUpdateModal(u.id)">
               <i class="bi bi-pencil-fill"></i>
             </button>
+            <button class="btn btn-sm btn-outline-warning m-2" (click)="openChangePassModal(u.id)">
+              <i class="bi bi-key-fill"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -279,6 +282,72 @@
         </button>
         <button class="btn btn-danger" (click)="deleteUser()">
           Eliminar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="showChangePassModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background: #ffc107;">
+        <h5 class="modal-title">Cambiar contraseña</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeChangePassModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="confirmChangePass()" #formPass="ngForm">
+
+          <div class="mb-3">
+            <label class="form-label">Nueva contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              required
+              minlength="6"
+              [(ngModel)]="passwordData.newPass"
+              name="newPassword"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Confirmar contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              required
+              [(ngModel)]="passwordData.confPass"
+              name="confPassword"
+            />
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeChangePassModal()">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-warning"
+          [disabled]="formPass.invalid"
+          (click)="confirmChangePass()"
+        >
+          Cambiar
         </button>
       </div>
 
