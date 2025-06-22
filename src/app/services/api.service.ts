@@ -94,14 +94,14 @@ export class ApiService {
     return this.http.put(this.url + '/prices', { updates }, { headers });
   }
 
-  //Capacity
-  getCapacity(token: string) {
+  //Settings
+  getSettings(token: string) {
     const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.get(this.url + '/capacity', { headers });
+    return this.http.get(this.url + '/settings', { headers });
   }
 
-  updateCapacity(id: string, capacity: number, token: string) {
+  updateSettings(id: string, capacity: number, companion_discount: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.put(this.url + '/capacity', { id, capacity }, { headers });
+    return this.http.put(this.url + '/settings', { id, capacity, companion_discount }, { headers });
   }
 }

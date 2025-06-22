@@ -5,7 +5,7 @@
     </div>
 
     <div class="config-page container-fluid h-100">
-      <div class="row gx-4 gy-4 h-100">
+      <div class="row gx-4 gy-4 h-75">
 
         <div class="col-lg-6 d-flex flex-column">
           <div class="card p-4 shadow-sm flex-grow-1 d-flex flex-column justify-content-center">
@@ -19,7 +19,7 @@
                 <input
                   type="number"
                   class="form-control"
-                  [(ngModel)]="childPrice"
+                  [(ngModel)]="prices[0].price"
                   name="childPrice"
                 />
               </div>
@@ -33,7 +33,7 @@
                 <input
                   type="number"
                   class="form-control"
-                  [(ngModel)]="adultPrice"
+                  [(ngModel)]="prices[1].price"
                   name="adultPrice"
                 />
               </div>
@@ -47,7 +47,7 @@
                 <input
                   type="number"
                   class="form-control"
-                  [(ngModel)]="seniorPrice"
+                  [(ngModel)]="prices[2].price"
                   name="seniorPrice"
                 />
               </div>
@@ -61,28 +61,14 @@
                 <input
                   type="number"
                   class="form-control"
-                  [(ngModel)]="disabledPrice"
+                  [(ngModel)]="prices[3].price"
                   name="disabledPrice"
                 />
               </div>
             </div>
 
-            <div class="row align-items-center mb-4">
-              <div class="col-sm-7">
-                <label class="form-label mb-0">Descuento para acompañantes</label>
-              </div>
-              <div class="col-sm-5">
-                <input
-                  type="number"
-                  class="form-control"
-                  [(ngModel)]="companionDiscount"
-                  name="companionDiscount"
-                />
-              </div>
-            </div>
-
             <div class="text-center">
-              <button class="btn btn-dark px-5" (click)="updatePrices()">Guardar cambios</button>
+              <button class="btn btn-dark px-5" (click)="updatePrices()" [disabled]="!isPricesChanged">Guardar cambios</button>
             </div>
           </div>
         </div>
@@ -90,16 +76,36 @@
         <div class="col-lg-6 d-flex flex-column">
 
           <div class="card p-4 shadow-sm mb-4">
-            <h5 class="mb-3 text-center">Configurar límite de personas en las instalaciones</h5>
-            <div class="input-group">
-              <input
-                type="number"
-                class="form-control"
-                [(ngModel)]="capacity"
-                name="capacityLimit"
-                placeholder="Límite"
-              />
-              <button class="btn btn-dark" (click)="updateCapacity()">Guardar</button>
+            <h5 class="mb-3 text-center">Configuraciones adicionales</h5>
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Límite de aforo</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="capacity"
+                  name="capacity"
+                />
+              </div>
+            </div>
+
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Descuento de acompañantes de discapacitados</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="companion_discount"
+                  name="companion_discount"
+                />
+              </div>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-dark px-5" (click)="updateSettings()" [disabled]="!isSettingsChanged">Guardar cambios</button>
             </div>
           </div>
 
@@ -108,31 +114,30 @@
             <ul class="list-unstyled mb-0">
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Niños (0‑12 años de edad)</span>
-                <strong>{{ prices[0].price }}</strong>
+                <strong>{{ childPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Adultos (13‑59 años de edad)</span>
-                <strong>{{ prices[2].price }}</strong>
+                <strong>{{ adultPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Adultos mayores (60+)</span>
-                <strong>{{ prices[4].price }}</strong>
+                <strong>{{ seniorPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Personas con discapacidad</span>
-                <strong>{{ prices[6].price }}</strong>
+                <strong>{{ disabledPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Descuento para acompañantes</span>
-                <strong>{{ prices[8].price }}</strong>
+                <strong>{{ settingsObject.companion_discount }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2">
                 <span>Capacidad actual</span>
-                <strong>{{ capacityObject.capacity }}</strong>
+                <strong>{{ settingsObject.capacity }}</strong>
               </li>
             </ul>
           </div>
-
         </div>
       </div>
     </div>
