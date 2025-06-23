@@ -114,8 +114,7 @@ export class UsersComponent implements OnInit{
       next: (data: any) => {
         this.toastMessage = 'Usuario actualizado exitosamente.';
         this.showSuccessToast = true;
-        this.autoHideToast()
-        3;
+        this.autoHideToast();
         this.getUsers();
         this.closeUpdateModal();
       },

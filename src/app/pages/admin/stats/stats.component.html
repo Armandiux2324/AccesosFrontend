@@ -1,42 +1,117 @@
 <div class="d-flex">
-
   <main class="flex-grow-1 p-4" style="margin-left: 4.5rem;">
     <header class="mb-4">
-      <h1>Estadísticas</h1>
+      <h1 class="h3">Estadísticas</h1>
     </header>
 
-    <div class="row mb-4">
-      <div class="col-md-6 mb-3">
-        <div class="card text-white bg-info h-100">
-          <div class="card-body d-flex align-items-center">
-            <i class="bi bi-cash-stack display-4 me-3"></i>
+    <div class="row mb-4 gx-3">
+      <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-people-fill display-4 text-warning me-3"></i>
             <div>
-              <h5 class="card-title">Ventas de Hoy</h5>
-              <h2>0</h2>
+              <h6 class="mb-1">Visitantes actuales</h6>
+              <h3 class="mb-1">{{ currentVisitors }}</h3>
+              <small class="text-muted">Ocupación: {{ occupancyPercent }}%</small>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="col-md-6 mb-3">
-        <div class="card text-white bg-success h-100">
-          <div class="card-body d-flex align-items-center">
-            <i class="bi bi-people display-4 me-3"></i>
+      <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-currency-dollar display-4 text-primary me-3"></i>
             <div>
-              <h5 class="card-title">Visitantes de Hoy</h5>
-              <h2>0</h2>
+              <h6 class="mb-1">Ventas totales</h6>
+              <h3 class="mb-1">{{ totalSales | currency }}</h3>
+              <small class="text-muted">&nbsp;</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-bar-chart-fill display-4 text-success me-3"></i>
+            <div>
+              <h6 class="mb-1">
+                {{ selectedFilter === FilterType.DateRange ? 'Rango de fechas' :
+                   selectedFilter === FilterType.TicketType ? 'Tipo de boleto' :
+                   selectedFilter === FilterType.Gender ? 'Género' :
+                   'Grupo de edad' }}
+              </h6>
+              <h6 class="mb-0 text-secondary">
+                <ng-container *ngIf="selectedFilter === FilterType.DateRange">
+                  {{ dateRange.from }} → {{ dateRange.to }}
+                </ng-container>
+                <ng-container *ngIf="selectedFilter !== FilterType.DateRange">
+                  Total categorías: {{ chartData.length }}
+                </ng-container>
+              </h6>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        Ventas Últimos 7 Días
+    <hr class="my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="btn-group" role="group">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                [class.active]="selectedFilter === FilterType.DateRange"
+                (click)="changeFilter(FilterType.DateRange)">
+          Intervalo de fechas
+        </button>
+        <button type="button"
+                class="btn btn-outline-secondary"
+                [class.active]="selectedFilter === FilterType.TicketType"
+                (click)="changeFilter(FilterType.TicketType)">
+          Tipo de boleto
+        </button>
+        <button type="button"
+                class="btn btn-outline-secondary"
+                [class.active]="selectedFilter === FilterType.Gender"
+                (click)="changeFilter(FilterType.Gender)">
+          Género
+        </button>
+        <button type="button"
+                class="btn btn-outline-secondary"
+                [class.active]="selectedFilter === FilterType.AgeGroup"
+                (click)="changeFilter(FilterType.AgeGroup)">
+          Grupo de edad
+        </button>
       </div>
-      <div class="card-body">
-        <canvas id="salesChart"></canvas>
+
+      <div *ngIf="selectedFilter === FilterType.DateRange" class="mb-3">
+        <div class="input-group">
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="dateRange.from"
+            (change)="onDateRangeChange()"
+          />
+          <span class="input-group-text">→</span>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="dateRange.to"
+            (change)="onDateRangeChange()"
+          />
+        </div>
+    </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-body position-relative">
+        <canvas id="statisticsChart" height="200"></canvas>
+        <button class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2">
+          Exportar a Excel
+        </button>
       </div>
     </div>
   </main>
