@@ -77,6 +77,12 @@ export class ApiService {
     return this.http.get(this.url + '/week-sales', { headers });
   }
 
+  getTicketByVisitId(visit_id: any, token: string) {
+    const params = new HttpParams().set('visit_id', visit_id);
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/ticket-by-visit', { params, headers });
+  }
+
   //Visitors
   getTodayVisitors(token: string) {
     const headers = new HttpHeaders().set('Authorization', token); 
@@ -108,6 +114,12 @@ export class ApiService {
     return this.http.get(this.url + '/active-visitors', { headers });
   }
 
+  getVisitorsByVisitId(visit_id: string, token: string) {
+    const params = new HttpParams().set('visit_id', visit_id);
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(this.url + '/visitors-by-visit', { params, headers });
+  }
+
   //Prices
   getPrices(token: string) {
     const headers = new HttpHeaders().set('Authorization', token); 
@@ -128,5 +140,35 @@ export class ApiService {
   updateSettings(id: string, capacity: number, companion_discount: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.put(this.url + '/settings', { id, capacity, companion_discount }, { headers });
+  }
+
+  //Payments
+  getPayments(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/payments', { headers });
+  }
+
+  //Visits
+  getVisits(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/visits', { headers });
+  }
+
+  getVisitById(id: any, token: string) {
+    const params = new HttpParams().set('id', id);
+    const headers = new HttpHeaders().set('Authorization', token); 
+    return this.http.get(this.url + '/visit', { params, headers });
+  }
+
+  deleteVisit(id: string, token: string) {
+    const params = new HttpParams().set('id', id);
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.delete(this.url + '/visits', { params, headers });
+  }
+
+  searchVisits(parameter: string, token: string) {
+    const params = new HttpParams().set('parameter', parameter);
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(this.url + '/search-visits', { params, headers });
   }
 }
