@@ -72,15 +72,14 @@ export class ApiService {
     return this.http.get(this.url + '/total-sales', { headers });
   }
 
+  getSalesInDateRange(from: string, to: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/date-range-sales', {from, to}, { headers });
+  }
+
   getLast7DaysSales(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/week-sales', { headers });
-  }
-
-  getTicketByVisitId(visit_id: any, token: string) {
-    const params = new HttpParams().set('visit_id', visit_id);
-    const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.get(this.url + '/ticket-by-visit', { params, headers });
   }
 
   //Visitors
@@ -112,12 +111,6 @@ export class ApiService {
   getActiveVisitorsCount(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/active-visitors', { headers });
-  }
-
-  getVisitorsByVisitId(visit_id: string, token: string) {
-    const params = new HttpParams().set('visit_id', visit_id);
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(this.url + '/visitors-by-visit', { params, headers });
   }
 
   //Prices

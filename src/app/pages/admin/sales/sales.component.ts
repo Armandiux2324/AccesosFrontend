@@ -22,7 +22,7 @@ export class SalesComponent implements OnInit {
 
   visitIdForTicket: any = null;
   showTicketModal = false;
-  ticketInfo: any = {};
+  visitInfo: any = {};
   childrenCount: number = 0;
   adultsCount: number = 0;
   seniorsCount: number = 0;
@@ -49,11 +49,6 @@ export class SalesComponent implements OnInit {
     this.api.searchVisits(this.searchText, this.token).subscribe({
       next: (data: any) => {
         this.visits = data.data;
-        if (this.visits.length === 0) {
-          this.toastMessage = 'No se encontraron visitas en esa fecha.';
-          this.showErrorToast = true;
-          this.autoHideToast();
-        }
       },
       error: (error: any) => {
         this.toastMessage = 'Error al buscar.';
@@ -96,36 +91,22 @@ export class SalesComponent implements OnInit {
 
   promptViewTicket(visitId: any) {
     this.visitIdForTicket = visitId;
-    this.api.getTicketByVisitId(visitId, this.token).subscribe({
+    this.api.getVisitById(visitId, this.token).subscribe({
       next: (res: any) => {
-        this.ticketInfo = res.data;
-        console.log('Ticket Info:', this.ticketInfo);
-        if (this.ticketInfo) {
+        this.visitInfo = res.data;
+        if (this.visitInfo) {
           this.showTicketModal = true;
-          this.api.getVisitorsByVisitId(this.ticketInfo.visit_id, this.token).subscribe({
-            next: (visitorsData: any) => {
-              this.ticketInfo.visit.visitors = visitorsData.data;
-              this.ticketInfo.visit.visitors.forEach((visitor: any) => {
-                if (visitor.price.type == 'Niño') {
-                  this.childrenCount++;
-                } else if (visitor.price.type == 'Adulto') {
-                  this.adultsCount++;
-                } else if (visitor.price.type == 'Adulto Mayor') {
-                  this.seniorsCount++;
-                } else if (visitor.price.type == 'Discapacitado') {
-                  this.disabledCount++;
-                } else {
-                  console.warn('Tipo de visitante desconocido:', visitor.price.type);
-                }
-              });
-              console.log(this.ticketInfo);
-              this.showTicketModal = true;
-            },
-            error: (error: any) => {
-              this.toastMessage = 'Error al obtener los visitantes asociados a la visita.';
-              this.showErrorToast = true;
-              this.autoHideToast();
-              console.error('Error fetching visitors:', error);
+          res.data.visitors.forEach((visitor: any) => {
+            if (visitor.price.type == 'Niño') {
+              this.childrenCount++;
+            } else if (visitor.price.type == 'Adulto') {
+              this.adultsCount++;
+            } else if (visitor.price.type == 'Adulto Mayor') {
+              this.seniorsCount++;
+            } else if (visitor.price.type == 'Discapacitado') {
+              this.disabledCount++;
+            } else {
+              console.warn('Tipo de visitante desconocido:', visitor.price.type);
             }
           });
         } else {

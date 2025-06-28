@@ -1,6 +1,6 @@
 <nav class="sidebar d-flex flex-column text-white">
   <div class="logo-container">
-    <button class="logo-btn">
+    <button class="logo-btn" (click)="redirectToDashboard()">
       <img src="/icon.png" alt="Logo" class="logo-img" />
     </button>
   </div>
@@ -27,7 +27,7 @@
     </li>
     <li class="nav-item">
       <button (click)="redirectToSales()" class="nav-btn">
-        <i class="bi bi-currency-dollar"></i>
+        <i class="bi bi-calendar-check-fill"></i>
       </button>
     </li>
   </ul>

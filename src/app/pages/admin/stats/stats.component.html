@@ -2,6 +2,14 @@
   <main class="flex-grow-1 p-4" style="margin-left: 4.5rem;">
     <header class="mb-4">
       <h1 class="h3">Estadísticas</h1>
+      <button
+        class="btn btn-primary"
+        (click)="exportToExcel()"
+        title="Exportar a Excel"
+      >
+        <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>
+        Exportar a Excel
+      </button>
     </header>
 
     <div class="row mb-4 gx-3">
@@ -23,9 +31,34 @@
           <div class="d-flex align-items-center">
             <i class="bi bi-currency-dollar display-4 text-primary me-3"></i>
             <div>
-              <h6 class="mb-1">Ventas totales</h6>
+              <h6 class="mb-1">{{ salesFilter ? 'Ventas por fechas' : 'Ventas totales' }}</h6>
               <h3 class="mb-1">{{ totalSales | currency }}</h3>
-              <small class="text-muted">&nbsp;</small>
+              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="salesFilter = !salesFilter">
+                {{ salesFilter ? 'Cerrar filtro' : 'Filtrar ventas' }}
+              </button>
+
+              <ng-container *ngIf="salesFilter" class="mt-2">
+                <div class="input-group">
+                  <input
+                    type="date"
+                    class="form-control date-filter"
+                    [(ngModel)]="salesRange.from"
+                    (change)="applySalesFilter()"
+                  />
+                  <span class="input-group-text">→</span>
+                  <input
+                    type="date"
+                    class="form-control date-filter"
+                    [(ngModel)]="salesRange.to"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    (click)="resetSalesFilter()"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+              </ng-container>
             </div>
           </div>
         </div>
@@ -47,7 +80,7 @@
                   {{ dateRange.from }} → {{ dateRange.to }}
                 </ng-container>
                 <ng-container *ngIf="selectedFilter !== FilterType.DateRange">
-                  Total categorías: {{ chartData.length }}
+                  Visitantes totales: {{ chartData.length }}
                 </ng-container>
               </h6>
             </div>
@@ -109,9 +142,6 @@
     <div class="card">
       <div class="card-body position-relative">
         <canvas id="statisticsChart" height="200"></canvas>
-        <button class="btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2">
-          Exportar a Excel
-        </button>
       </div>
     </div>
   </main>

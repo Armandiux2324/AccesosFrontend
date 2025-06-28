@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { Chart, registerables } from 'chart.js';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 interface ChartData { label: string; value: number; }
 
@@ -30,6 +32,8 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   occupancyPercent = 0;
 
   totalSales = 0;
+  salesFilter = false;
+  salesRange = { from: '', to: '' };
 
   // filtros
   selectedFilter: FilterType = FilterType.DateRange;
@@ -98,6 +102,17 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  initDateRange() {
+    const today = new Date();
+    const prior = new Date();
+    prior.setDate(today.getDate() - 7);
+    this.dateRange.from = prior.toISOString().slice(0, 10);
+    this.dateRange.to = today.toISOString().slice(0, 10);
+
+    this.salesRange.from = this.dateRange.from;
+    this.salesRange.to   = this.dateRange.to;
+  }
+
   async loadTotalSales() {
     this.api.getTotalSales(this.token).subscribe({
       next: (res: any) => {
@@ -109,12 +124,20 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     })
   }
 
-  initDateRange() {
-    const today = new Date();
-    const prior = new Date();
-    prior.setDate(today.getDate() - 7);
-    this.dateRange.from = prior.toISOString().slice(0, 10);
-    this.dateRange.to = today.toISOString().slice(0, 10);
+  applySalesFilter() {
+    if (!this.salesRange.from || !this.salesRange.to) return;
+    this.api.getSalesInDateRange(this.salesRange.from, this.salesRange.to, this.token)
+      .subscribe({
+        next: (res: any) => {
+          this.totalSales = res.salesInRange;
+        },
+        error: err => console.error('Error loading sales in range:', err)
+      });
+  }
+
+  resetSalesFilter() {
+    this.salesFilter = false;
+    this.loadTotalSales();
   }
 
   changeFilter(filter: FilterType) {
@@ -192,6 +215,63 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
       scales.x.title.text = xLabel;
     }
     this.chart.update();
+  }
+
+  //Funciones para exportar a Excel
+  get currentFilterLabel(): string {
+    switch (this.selectedFilter) {
+      case this.FilterType.DateRange: return `Rango de fechas (${this.dateRange.from} → ${this.dateRange.to})`;
+      case this.FilterType.TicketType: return 'Tipo de boleto';
+      case this.FilterType.Gender:     return 'Género';
+      case this.FilterType.AgeGroup:   return 'Grupo de edad';
+    }
+  }
+
+  async exportToExcel() {
+    // Capturar gráfica como imagen
+    const canvas = document.getElementById('statisticsChart') as HTMLCanvasElement;
+    const ctx    = canvas.getContext('2d')!;
+
+    // Para fondo blanco de la imagen
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    // Convertir a base64
+    const chartDataUrl = canvas.toDataURL('image/png');
+
+    // Crea el workbook y la hoja
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Estadísticas');
+
+    // Título del archivo
+    ws.mergeCells('A1:C1');
+    ws.getCell('A1').value = `Estadísticas - ${this.currentFilterLabel}`;
+    ws.getCell('A1').font = { size: 16, bold: true };
+
+    // Tabla de métricas (visitantes y ventas)
+    ws.addRow([]);
+    ws.addRow(['Visitantes actuales', this.currentVisitors]);
+    ws.addRow(['Ventas en rango seleccionado', this.totalSales]);
+    ws.addRow([]);
+
+    // Insertar la imagen del gráfico generado la hoja
+    const imgId = wb.addImage({
+      base64: chartDataUrl,
+      extension: 'png',
+    });
+    // Ajuste de posición: fila 6, columna A
+    ws.addImage(imgId, {
+      tl: { col: 0.5, row: 5 },  // top-left
+      ext: { width: 600, height: 300 }
+    });
+
+    // Generar el archivo y ejecuta descarga del mismo
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    saveAs(blob, `estadisticas_${this.currentFilterLabel.replace(/[^a-z0-9]/gi,'_')}.xlsx`);
   }
 
 }

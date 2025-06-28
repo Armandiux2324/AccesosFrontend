@@ -25,21 +25,20 @@
       </button>
     </div>
 
-    <div class="user-list">
+    <div class="visits-list">
       <div
         *ngFor="let v of visits"
-        class="card user-card mb-3"
+        class="card visit-card mb-3"
       >
         <div class="card-body d-flex align-items-center">
-          <i class="bi bi-currency-dollar me-3"></i>
+          <i class="bi bi-calendar-check-fill visit-icon me-4"></i>
           <div class="flex-grow-1">
-            <h5 class="mb-1">Fecha de visita: {{ v.datetime_begin }}</h5>
+            <h5 class="mb-1">Fecha de visita: {{ v.datetime_begin | date:'dd/MM/yyyy' }}</h5>
             <p class="mb-0 text-muted">Contacto: {{ v.contact }}</p>
-            <!-- <small class="badge" [ngClass]="{
-              'bg-success': v.status === 'Activo',
-              'bg-secondary': v.status === 'Inactivo',
-              'bg-warning text-dark': v.status === 'Pasivo',
-            }">{{ v.status || 'Cargando…' }}</small> -->
+            <p class="mb-0 text-muted">Duración de la visita: {{ v.duration_minutes | duration }}</p>
+            <small *ngIf="v.ticket.status == 'Activo'" class="badge bg-success">Activa</small>
+            <small *ngIf="v.ticket.status == 'Inactivo'" class="badge bg-secondary">Inactiva</small>
+            <small *ngIf="v.ticket.status == 'Pasivo'" class="badge bg-warning">Sin iniciar</small>
           </div>
           <div class="actions">
             <button class="btn btn-sm btn-outline-success me-2" (click)="promptViewTicket(v.id)">
@@ -112,7 +111,7 @@
       </div>
 
       <div class="modal-body">
-        <p>¿Estás seguro de que deseas eliminar este pago?</p>
+        <p>¿Estás seguro de que deseas eliminar esta visita?</p>
       </div>
 
       <div class="modal-footer">
@@ -158,25 +157,25 @@
         <div class="ticket-body">
           <div class="qr-container text-center mb-3">
             <img
-              [src]="'http://localhost:3000/qr/' + ticketInfo.qr"
+              [src]="'http://localhost:3000/qr/' + visitInfo.ticket.qr"
               alt="QR Code"
               class="qr-img"
             />
           </div>
           <div class="ticket-info mb-2">
-            <p><strong>Inicio:</strong> {{ ticketInfo.visit.datetime_begin }}</p>
-            <p><strong>Fin:</strong>    {{ ticketInfo.visit.datetime_end }}</p>
+            <p><strong>Inicio:</strong> {{ visitInfo.datetime_begin | date:'short' }}</p>
+            <p><strong>Fin:</strong>    {{ visitInfo.datetime_end | date:'short' }}</p>
           </div>
           <div class="ticket-counts mb-2">
             <p *ngIf="adultsCount">Adultos: {{ adultsCount }}</p>
             <p *ngIf="childrenCount">Niños:   {{ childrenCount }}</p>
             <p *ngIf="seniorsCount">Adultos mayores: {{ seniorsCount }}</p>
             <p *ngIf="disabledCount">Discapacitados: {{ disabledCount }}</p>
-            <p *ngIf="ticketInfo.discount">Desc. acompaña.: {{ ticketInfo.discount }}</p>
+            <p>Desc. acompaña.: {{ visitInfo.ticket.discount }}</p>
           </div>
           <hr class="ticket-separator" />
           <div class="ticket-total text-end">
-            <h5>Total: {{ ticketInfo.total | currency }}</h5>
+            <h5>Total: {{ visitInfo.ticket.total }}</h5>
           </div>
         </div>
       </div>
