@@ -59,29 +59,28 @@ export class UsersComponent implements OnInit, OnDestroy {
     if (this.loading || this.page > this.totalPages) return;
     this.loading = true;
 
+    const handler = (res: any) => {
+      this.users = [this.users, res.data].flat();
+      this.totalPages = res.totalPages;
+      this.page++;
+      this.loading = false;
+    };
+
     if (this.isSearching && this.searchText) {
       this.api.searchUsers(this.searchText, this.page, this.size, this.token).subscribe({
         next: (res: any) => {
-          this.users = res.data;
-          this.totalPages = res.totalPages;
-          this.page++;
-          this.loading = false;
+          handler(res);
         },
         error: () => {
-          console.error('Error fetching users');
           this.loading = false;
         }
       });
     } else {
       this.api.getUsers(this.page, this.size, this.token).subscribe({
         next: (res: any) => {
-          this.users = res.data;
-          this.totalPages = res.totalPages;
-          this.page++;
-          this.loading = false;
+          handler(res);
         },
         error: () => {
-          console.error('Error fetching users');
           this.loading = false;
         }
       });
@@ -113,7 +112,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al agregar usuario.';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error adding user:', error);
       }
     });
   }
@@ -123,10 +121,11 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.api.getUserById(id, this.token).subscribe({
       next: (data: any) => {
         this.dataToUpdate = data.data;
-        console.log('User data to update:', this.dataToUpdate);
       },
       error: (error: any) => {
-        console.error('Error fetching user data:', error);
+        this.toastMessage = 'Error al cargar información del usuario.';
+        this.showErrorToast = true;
+        this.autoHideToast();
       }
     });
   }
@@ -151,7 +150,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al actualizar usuario.';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error updating user:', error);
       }
     });
   }
@@ -185,7 +183,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al cambiar contraseña';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error changing password:', err);
       }
     });
   }
@@ -201,7 +198,6 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   deleteUser() {
-    console.log('Deleting user with ID:', this.userIdToDelete);
     this.api.deleteUser(this.userIdToDelete, this.token).subscribe({
       next: (data: any) => {
         this.toastMessage = 'Usuario eliminado exitosamente.';
@@ -216,7 +212,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al eliminar usuario.';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error deleting user:', error);
       }
     });
 

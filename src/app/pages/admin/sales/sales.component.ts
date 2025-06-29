@@ -60,31 +60,28 @@ export class SalesComponent implements OnInit, OnDestroy {
     if (this.loading || this.page > this.totalPages) return;
     this.loading = true;
 
+    const handler = (res: any) => {
+      this.visits = [this.visits, res.data].flat();
+      this.totalPages = res.totalPages;
+      this.page++;
+      this.loading = false;
+    };
+
     if (this.isSearching && this.searchDateText) {
       this.api.searchVisitsPaginated(this.searchDateText, this.page, this.size, this.token).subscribe({
         next: (res: any) => {
-          console.log('Visits fetched:', res.data);
-          this.visits = res.data;
-          this.totalPages = res.totalPages;
-          this.page++;
-          this.loading = false;
+          handler(res);
         },
         error: () => {
-          console.error('Error fetching visits');
           this.loading = false;
         }
       });
     } else {
       this.api.getVisitsPaginated(this.page, this.size, this.token).subscribe({
         next: (res: any) => {
-          console.log('Visits fetched:', res.data);
-          this.visits = res.data;
-          this.totalPages = res.totalPages;
-          this.page++;
-          this.loading = false;
+          handler(res);
         },
         error: () => {
-          console.error('Error fetching visits');
           this.loading = false;
         }
       });
@@ -132,7 +129,6 @@ export class SalesComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al eliminar visita.';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error deleting visit:', error);
       }
     });
 
@@ -172,7 +168,6 @@ export class SalesComponent implements OnInit, OnDestroy {
         this.toastMessage = 'Error al obtener el ticket.';
         this.showErrorToast = true;
         this.autoHideToast();
-        console.error('Error fetching ticket:', error);
       }
     });
   }
