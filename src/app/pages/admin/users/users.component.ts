@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 
 @Component({
@@ -7,12 +7,22 @@ import { ApiService } from '../../../services/api.service';
   styleUrl: './users.component.scss',
   standalone: false,
 })
-export class UsersComponent implements OnInit{
+export class UsersComponent implements OnInit, OnDestroy {
+  @ViewChild('anchor', { static: true }) anchor!: ElementRef<HTMLElement>;
   constructor(private api: ApiService) { }
   token: any = null;
   userId: any = null;
   users: any[] = [];
+  page = 1;
+  size = 20;
+  totalPages = 1;
+  loading = false;
+
+  private observer!: IntersectionObserver;
+
   searchText: string = '';
+  isSearching = false;
+
   showSuccessToast = false;
   showErrorToast = false;
   toastMessage = '';
@@ -22,7 +32,7 @@ export class UsersComponent implements OnInit{
 
   showUpdateModal = false;
   dataToUpdate: any = {};
-  
+
   showChangePassModal = false;
   passwordData: any = {};
 
@@ -32,41 +42,54 @@ export class UsersComponent implements OnInit{
   ngOnInit() {
     this.token = localStorage.getItem('authToken');
     this.userId = localStorage.getItem('userId');
-    this.getUsers();
-  }
-
-  async getUsers() {
-    this.api.getUsers(this.userId, this.token).subscribe({
-      next: (data: any) => {
-        this.users = data.data;
-      }, 
-      error: (error: any) => {
-        console.error('Error fetching users:', error);
+    this.loadUsersPage();
+    this.observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !this.loading && this.page <= this.totalPages) {
+        this.loadUsersPage();
       }
     });
+    this.observer.observe(this.anchor.nativeElement);
   }
 
-  searchUsers(){
-    this.api.searchUsers(this.searchText, this.token).subscribe({
-      next: (data: any) => {
-        this.users = data.data;
-        if (this.users.length === 0) {
-          this.toastMessage = 'No se encontraron usuarios con ese criterio de búsqueda.';
-          this.showErrorToast = true;
-          this.autoHideToast();
+  ngOnDestroy() {
+    this.observer.disconnect();
+  }
+
+  async loadUsersPage() {
+    if (this.loading || this.page > this.totalPages) return;
+    this.loading = true;
+
+    if (this.isSearching && this.searchText) {
+      this.api.searchUsers(this.searchText, this.page, this.size, this.token).subscribe({
+        next: (res: any) => {
+          this.users = res.data;
+          this.totalPages = res.totalPages;
+          this.page++;
+          this.loading = false;
+        },
+        error: () => {
+          console.error('Error fetching users');
+          this.loading = false;
         }
-      },
-      error: (error: any) => {
-        this.toastMessage = 'Error al buscar usuarios.';
-        this.showErrorToast = true;
-        this.autoHideToast();
-        console.error('Error searching users:', error);
-      }
-    });
+      });
+    } else {
+      this.api.getUsers(this.page, this.size, this.token).subscribe({
+        next: (res: any) => {
+          this.users = res.data;
+          this.totalPages = res.totalPages;
+          this.page++;
+          this.loading = false;
+        },
+        error: () => {
+          console.error('Error fetching users');
+          this.loading = false;
+        }
+      });
+    }
   }
 
   openAddModal() {
-    this.dataToAdd = {};     
+    this.dataToAdd = {};
     this.showAddModal = true;
   }
 
@@ -81,7 +104,10 @@ export class UsersComponent implements OnInit{
         this.showSuccessToast = true;
         this.autoHideToast();
         this.closeAddModal();
-        this.getUsers();
+
+        this.users = [];
+        this.page = 1;
+        this.loadUsersPage();
       },
       error: (error: any) => {
         this.toastMessage = 'Error al agregar usuario.';
@@ -102,7 +128,7 @@ export class UsersComponent implements OnInit{
       error: (error: any) => {
         console.error('Error fetching user data:', error);
       }
-    }); 
+    });
   }
 
   closeUpdateModal() {
@@ -115,10 +141,13 @@ export class UsersComponent implements OnInit{
         this.toastMessage = 'Usuario actualizado exitosamente.';
         this.showSuccessToast = true;
         this.autoHideToast();
-        this.getUsers();
         this.closeUpdateModal();
+
+        this.users = [];
+        this.page = 1;
+        this.loadUsersPage();
       },
-      error: (error: any) => {         
+      error: (error: any) => {
         this.toastMessage = 'Error al actualizar usuario.';
         this.showErrorToast = true;
         this.autoHideToast();
@@ -145,7 +174,7 @@ export class UsersComponent implements OnInit{
       return;
     }
 
-    this.api.changePassword(this.passwordData.id, this.passwordData.newPass, this.passwordData.confPass,this.token).subscribe({
+    this.api.changePassword(this.passwordData.id, this.passwordData.newPass, this.passwordData.confPass, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Contraseña del usuario cambiada exitosamente.';
         this.showSuccessToast = true;
@@ -178,7 +207,10 @@ export class UsersComponent implements OnInit{
         this.toastMessage = 'Usuario eliminado exitosamente.';
         this.showSuccessToast = true;
         this.autoHideToast();
-        this.getUsers();
+
+        this.users = [];
+        this.page = 1;
+        this.loadUsersPage();
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar usuario.';
@@ -192,6 +224,17 @@ export class UsersComponent implements OnInit{
     this.userIdToDelete = null;
   }
 
+  async searchUsers() {
+    if (this.searchText == '') {
+      this.isSearching = false;
+    } else {
+      this.isSearching = true;
+    }
+    this.users = [];
+    this.page = 1;
+    this.totalPages = 1; 
+    this.loadUsersPage();
+  }
   private autoHideToast() {
     setTimeout(() => {
       this.showSuccessToast = false;

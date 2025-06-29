@@ -25,6 +25,7 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   token: any = null;
   FilterType = FilterType;
+  private refreshTimerId!: number;
 
   // cuadros
   currentVisitors = 0;
@@ -45,11 +46,9 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.token = localStorage.getItem('authToken');
-    this.loadCurrentVisitors();
-    this.loadCapacity();
-    this.loadTotalSales();
     this.initDateRange();
-    this.loadChartData();
+    this.refreshAll();
+    this.refreshTimerId = window.setInterval(() => this.refreshAll(), 30_000);
   }
 
   ngAfterViewInit() {
@@ -67,7 +66,21 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    clearInterval(this.refreshTimerId);
     this.chart.destroy();
+  }
+
+  private refreshAll() {
+    this.loadCurrentVisitors();
+    this.loadCapacity();
+    
+    if (this.salesFilter && this.salesRange.from && this.salesRange.to) {
+      this.applySalesFilter();
+    } else {
+      this.loadTotalSales();
+    }
+
+    this.loadChartData();
   }
 
   async loadCurrentVisitors() {

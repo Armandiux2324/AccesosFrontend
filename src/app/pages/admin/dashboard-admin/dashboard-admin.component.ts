@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { Chart, registerables } from 'chart.js';  
 
@@ -10,12 +10,14 @@ Chart.register(...registerables);
   templateUrl: './dashboard-admin.component.html',
   styleUrl: './dashboard-admin.component.scss'
 })
-export class DashboardAdminComponent implements OnInit{
+export class DashboardAdminComponent implements OnInit, OnDestroy{
   constructor(private api: ApiService) { }
   token: any = null;
   name: any = null;
   totalSalesToday = 0;
   totalVisitorsToday = 0;
+
+  private refreshTimerId!: number;
 
   labels: string[] = [];
   dataPoints: number[] = [];
@@ -25,8 +27,17 @@ export class DashboardAdminComponent implements OnInit{
       this.name = localStorage.getItem('name');
       this.loadMetrics();
       this.loadChartData();
+
+      this.refreshTimerId = window.setInterval(() => {
+        this.loadMetrics();
+        this.loadChartData();
+      }, 30_000);
   }
 
+  ngOnDestroy() {
+    clearInterval(this.refreshTimerId);
+  }
+  
   private loadMetrics() {
     this.getTodaySales();
     this.getTodayVisitors();

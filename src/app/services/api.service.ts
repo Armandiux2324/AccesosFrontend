@@ -8,24 +8,24 @@ import { environment } from '../../environments/environment.prod';
 })
 export class ApiService {
 
-  constructor(private http:HttpClient) { }
+  constructor(private http: HttpClient) { }
 
   url = environment.backend;
-  
+
   //Users
-  login(user:string, pass:string){
+  login(user: string, pass: string) {
     return this.http.post(this.url + '/login', { identificator: user, password: pass });
   }
 
-  getUsers(id: string, token: string) {
-    const params = new HttpParams().set('id', id);
-    const headers = new HttpHeaders().set('Authorization', token); 
+  getUsers(page: number, size: number, token: string) {
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/users', { params, headers });
   }
 
   getUserById(id: number, token: string) {
     const params = new HttpParams().set('id', id);
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/user', { params, headers });
   }
 
@@ -50,31 +50,31 @@ export class ApiService {
     return this.http.delete(this.url + '/users/', { params, headers });
   }
 
-  searchUsers(parameter: string, token: string) {
-    const params = new HttpParams().set('parameter', parameter);
+  searchUsers(parameter: string, page: number, size: number, token: string) {
+    const params = new HttpParams().set('parameter', parameter).set('page', page.toString()).set('size', size.toString());
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/search-users', { params, headers });
   }
-  
+
   //Tickets
   getTickets(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/tickets', { headers });
   }
 
   getTodaySales(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/today-sales', { headers });
   }
 
   getTotalSales(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/total-sales', { headers });
   }
 
   getSalesInDateRange(from: string, to: string, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.post(this.url + '/date-range-sales', {from, to}, { headers });
+    return this.http.post(this.url + '/date-range-sales', { from, to }, { headers });
   }
 
   getLast7DaysSales(token: string) {
@@ -84,17 +84,17 @@ export class ApiService {
 
   //Visitors
   getTodayVisitors(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/today-visitors', { headers });
   }
 
   getDailyVisitors(from: string, to: string, token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.post(this.url + '/date-range-visitors', {from, to}, { headers });
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/date-range-visitors', { from, to }, { headers });
   }
 
   getVisitorsByPriceTypeTotal(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/visitors-by-type', { headers });
   }
 
@@ -115,7 +115,7 @@ export class ApiService {
 
   //Prices
   getPrices(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/prices', { headers });
   }
 
@@ -126,7 +126,7 @@ export class ApiService {
 
   //Settings
   getSettings(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/settings', { headers });
   }
 
@@ -137,19 +137,14 @@ export class ApiService {
 
   //Payments
   getPayments(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/payments', { headers });
   }
 
   //Visits
-  getVisits(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token); 
-    return this.http.get(this.url + '/visits', { headers });
-  }
-
   getVisitById(id: any, token: string) {
     const params = new HttpParams().set('id', id);
-    const headers = new HttpHeaders().set('Authorization', token); 
+    const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/visit', { params, headers });
   }
 
@@ -159,9 +154,16 @@ export class ApiService {
     return this.http.delete(this.url + '/visits', { params, headers });
   }
 
-  searchVisits(parameter: string, token: string) {
-    const params = new HttpParams().set('parameter', parameter);
+  getVisitsPaginated(page: number, size: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(this.url + '/search-visits', { params, headers });
+    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<{ data: any[]; total: number; page: number; totalPages: number; }>(this.url + '/visits', { headers, params });
   }
+
+  searchVisitsPaginated(date: string, page: number, size: number, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    const params = new HttpParams().set('date', date).set('page', page.toString()).set('size', size.toString());
+    return this.http.get<{ data: any[]; total: number; page: number; totalPages: number; }>(this.url + '/search-visits', { headers, params });
+  }
+
 }

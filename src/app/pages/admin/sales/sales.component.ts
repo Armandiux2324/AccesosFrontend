@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 
 @Component({
@@ -7,12 +7,23 @@ import { ApiService } from '../../../services/api.service';
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })
-export class SalesComponent implements OnInit {
+export class SalesComponent implements OnInit, OnDestroy {
+  @ViewChild('anchor', { static: true }) anchor!: ElementRef<HTMLElement>;
+
   constructor(private api: ApiService) { }
   token: any = null;
   userId: any = null;
   visits: any[] = [];
-  searchText: string = '';
+  page = 1;
+  size = 20;
+  totalPages = 1;
+  loading = false;
+
+  private observer!: IntersectionObserver;
+
+  searchDateText = '';
+  isSearching = false;
+
   showSuccessToast = false;
   showErrorToast = false;
   toastMessage = '';
@@ -31,32 +42,70 @@ export class SalesComponent implements OnInit {
   ngOnInit() {
     this.token = localStorage.getItem('authToken');
     this.userId = localStorage.getItem('userId');
-    this.getVisits();
-  }
 
-  async getVisits() {
-    this.api.getVisits(this.token).subscribe({
-      next: (data: any) => {
-        this.visits = data.data;
-      },
-      error: (error: any) => {
-        console.error('Error fetching visits:', error);
+    this.loadVisitsPage();
+    this.observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !this.loading && this.page <= this.totalPages) {
+        this.loadVisitsPage();
       }
     });
+    this.observer.observe(this.anchor.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.observer.disconnect();
+  }
+
+  async loadVisitsPage() {
+    if (this.loading || this.page > this.totalPages) return;
+    this.loading = true;
+
+    if (this.isSearching && this.searchDateText) {
+      this.api.searchVisitsPaginated(this.searchDateText, this.page, this.size, this.token).subscribe({
+        next: (res: any) => {
+          console.log('Visits fetched:', res.data);
+          this.visits = res.data;
+          this.totalPages = res.totalPages;
+          this.page++;
+          this.loading = false;
+        },
+        error: () => {
+          console.error('Error fetching visits');
+          this.loading = false;
+        }
+      });
+    } else {
+      this.api.getVisitsPaginated(this.page, this.size, this.token).subscribe({
+        next: (res: any) => {
+          console.log('Visits fetched:', res.data);
+          this.visits = res.data;
+          this.totalPages = res.totalPages;
+          this.page++;
+          this.loading = false;
+        },
+        error: () => {
+          console.error('Error fetching visits');
+          this.loading = false;
+        }
+      });
+    }
   }
 
   searchByDate() {
-    this.api.searchVisits(this.searchText, this.token).subscribe({
-      next: (data: any) => {
-        this.visits = data.data;
-      },
-      error: (error: any) => {
-        this.toastMessage = 'Error al buscar.';
-        this.showErrorToast = true;
-        this.autoHideToast();
-        console.error('Error searching visits:', error);
-      }
-    });
+    if (!this.searchDateText) {
+      this.isSearching = false;
+      this.visits = [];
+      this.page = 1;
+      this.loadVisitsPage();
+      return;
+    }
+
+    this.isSearching = true;
+    this.visits = [];
+    this.page = 1;
+    this.totalPages = 1;
+
+    this.loadVisitsPage();
   }
 
   promptDeleteVisit(id: any) {
@@ -75,7 +124,9 @@ export class SalesComponent implements OnInit {
         this.toastMessage = 'Visita eliminada exitosamente.';
         this.showSuccessToast = true;
         this.autoHideToast();
-        this.getVisits();
+        this.visits = [];
+        this.page = 1;
+        this.loadVisitsPage();
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar visita.';

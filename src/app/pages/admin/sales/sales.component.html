@@ -13,13 +13,13 @@
         type="date"
         class="form-control"
         placeholder="Buscar por fecha..."
-        [(ngModel)]="searchText"
+        [(ngModel)]="searchDateText"
         (ngModelChange)="searchByDate()"
       />
       <button
-        *ngIf="searchText"
+        *ngIf="searchDateText"
         class="btn btn-outline-secondary"
-        (click)="searchText = ''; getVisits()"
+        (click)="searchDateText = ''; visits = []; page = 1; loadVisitsPage();"
       >
         Cancelar
       </button>
@@ -33,7 +33,7 @@
         <div class="card-body d-flex align-items-center">
           <i class="bi bi-calendar-check-fill visit-icon me-4"></i>
           <div class="flex-grow-1">
-            <h5 class="mb-1">Fecha de visita: {{ v.datetime_begin | date:'dd/MM/yyyy' }}</h5>
+            <h5 class="mb-1">Fecha de visita: {{ v.datetime_begin | date:'dd/MM/yyyy':'UTC' }}</h5>
             <p class="mb-0 text-muted">Contacto: {{ v.contact }}</p>
             <p class="mb-0 text-muted">Duración de la visita: {{ v.duration_minutes | duration }}</p>
             <small *ngIf="v.ticket.status == 'Activo'" class="badge bg-success">Activa</small>
@@ -51,6 +51,10 @@
         </div>
       </div>
       <p *ngIf="!visits.length" class="text-center text-muted">No hay visitas.</p>
+
+      <div #anchor class="text-center my-3">
+        <small *ngIf="loading">Cargando...</small>
+      </div>
     </div>
   </main>
 </div>
@@ -163,8 +167,8 @@
             />
           </div>
           <div class="ticket-info mb-2">
-            <p><strong>Inicio:</strong> {{ visitInfo.datetime_begin | date:'short' }}</p>
-            <p><strong>Fin:</strong>    {{ visitInfo.datetime_end | date:'short' }}</p>
+            <p><strong>Inicio:</strong> {{ visitInfo.datetime_begin | date:'short': 'UTC' }}</p>
+            <p><strong>Fin:</strong>    {{ visitInfo.datetime_end | date:'short': 'UTC' }}</p>
           </div>
           <div class="ticket-counts mb-2">
             <p *ngIf="adultsCount">Adultos: {{ adultsCount }}</p>

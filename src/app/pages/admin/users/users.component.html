@@ -20,7 +20,7 @@
       <button
         *ngIf="searchText"
         class="btn btn-outline-secondary"
-        (click)="searchText = ''"
+        (click)="searchText = ''; isSearching = false; users = []; page = 1; loadUsersPage();"
       >
         Cancelar
       </button>
@@ -52,6 +52,10 @@
         </div>
       </div>
       <p *ngIf="!users.length" class="text-center text-muted">No hay usuarios.</p>
+
+      <div #anchor class="text-center my-3">
+        <small *ngIf="loading">Cargando...</small>
+      </div>
     </div>
   </main>
 </div>
