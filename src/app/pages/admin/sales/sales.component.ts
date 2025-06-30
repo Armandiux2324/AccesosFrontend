@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 
 @Component({
@@ -7,19 +7,19 @@ import { ApiService } from '../../../services/api.service';
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss'
 })
-export class SalesComponent implements OnInit, OnDestroy {
-  @ViewChild('anchor', { static: true }) anchor!: ElementRef<HTMLElement>;
+export class SalesComponent implements OnInit {
 
   constructor(private api: ApiService) { }
   token: any = null;
   userId: any = null;
   visits: any[] = [];
+
   page = 1;
   size = 20;
   totalPages = 1;
+  currentPage = 1;
+  pagesArray: number[] = [];
   loading = false;
-
-  private observer!: IntersectionObserver;
 
   searchDateText = '';
   isSearching = false;
@@ -43,66 +43,67 @@ export class SalesComponent implements OnInit, OnDestroy {
     this.token = localStorage.getItem('authToken');
     this.userId = localStorage.getItem('userId');
 
-    this.loadVisitsPage();
-    this.observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !this.loading && this.page <= this.totalPages) {
-        this.loadVisitsPage();
-      }
-    });
-    this.observer.observe(this.anchor.nativeElement);
+    this.loadPage(this.currentPage);
   }
 
-  ngOnDestroy() {
-    this.observer.disconnect();
-  }
-
-  async loadVisitsPage() {
-    if (this.loading || this.page > this.totalPages) return;
+  loadPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
     this.loading = true;
+    const params = { page: String(page), size: String(this.size) };
 
     const handler = (res: any) => {
-      this.visits = [this.visits, res.data].flat();
+      this.visits = res.data
       this.totalPages = res.totalPages;
-      this.page++;
+      this.currentPage = res.page;
+      this.buildPagesArray();
       this.loading = false;
     };
 
     if (this.isSearching && this.searchDateText) {
-      this.api.searchVisitsPaginated(this.searchDateText, this.page, this.size, this.token).subscribe({
+      this.api.searchVisitsPaginated(this.searchDateText, page, this.size, this.token).subscribe({
         next: (res: any) => {
           handler(res);
         },
-        error: () => {
+        error: (err: any) => {
           this.loading = false;
         }
       });
     } else {
-      this.api.getVisitsPaginated(this.page, this.size, this.token).subscribe({
+      this.api.getVisitsPaginated(page, this.size, this.token).subscribe({
         next: (res: any) => {
           handler(res);
         },
-        error: () => {
+        error: (err: any) => {
           this.loading = false;
         }
       });
     }
   }
 
-  searchByDate() {
-    if (!this.searchDateText) {
-      this.isSearching = false;
-      this.visits = [];
-      this.page = 1;
-      this.loadVisitsPage();
-      return;
-    }
+  private buildPagesArray() {
+    this.pagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
 
+  goToPage(page: number) {
+    if (page === this.currentPage) return;
+    this.loadPage(page);
+  }
+
+  searchByDate() {
     this.isSearching = true;
     this.visits = [];
-    this.page = 1;
+    this.currentPage = 1;
     this.totalPages = 1;
+    this.loadPage(1);
+  }
 
-    this.loadVisitsPage();
+  resetSearch() {
+    this.searchDateText = '';
+    this.isSearching = false;
+    this.visits = [];    
+    this.currentPage = 1;
+    this.totalPages = 1;
+    this.loadPage(1);
   }
 
   promptDeleteVisit(id: any) {
@@ -123,7 +124,7 @@ export class SalesComponent implements OnInit, OnDestroy {
         this.autoHideToast();
         this.visits = [];
         this.page = 1;
-        this.loadVisitsPage();
+        this.loadPage(1);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar visita.';

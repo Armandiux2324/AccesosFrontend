@@ -20,7 +20,7 @@
       <button
         *ngIf="searchText"
         class="btn btn-outline-secondary"
-        (click)="searchText = ''; isSearching = false; users = []; page = 1; loadUsersPage();"
+        (click)="resetSearch()"
       >
         Cancelar
       </button>
@@ -53,9 +53,34 @@
       </div>
       <p *ngIf="!users.length" class="text-center text-muted">No hay usuarios.</p>
 
-      <div #anchor class="text-center my-3">
-        <small *ngIf="loading">Cargando...</small>
-      </div>
+      <nav *ngIf="totalPages > 0" aria-label="Paginación usuarios">
+        <ul class="pagination justify-content-center">
+          <li
+            class="page-item"
+            [class.disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            <a class="page-link">Anterior</a>
+          </li>
+
+          <li
+            *ngFor="let p of pagesArray"
+            class="page-item"
+            [class.active]="p === currentPage"
+            (click)="goToPage(p)"
+          >
+            <a class="page-link">{{ p }}</a>
+          </li>
+
+          <li
+            class="page-item"
+            [class.disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            <a class="page-link">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </main>
 </div>

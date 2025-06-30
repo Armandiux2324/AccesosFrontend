@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 
 @Component({
@@ -7,18 +7,18 @@ import { ApiService } from '../../../services/api.service';
   styleUrl: './users.component.scss',
   standalone: false,
 })
-export class UsersComponent implements OnInit, OnDestroy {
-  @ViewChild('anchor', { static: true }) anchor!: ElementRef<HTMLElement>;
+export class UsersComponent implements OnInit {
   constructor(private api: ApiService) { }
   token: any = null;
   userId: any = null;
   users: any[] = [];
+
   page = 1;
   size = 20;
   totalPages = 1;
+  currentPage = 1;
+  pagesArray: number[] = [];
   loading = false;
-
-  private observer!: IntersectionObserver;
 
   searchText: string = '';
   isSearching = false;
@@ -42,32 +42,25 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.token = localStorage.getItem('authToken');
     this.userId = localStorage.getItem('userId');
-    this.loadUsersPage();
-    this.observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !this.loading && this.page <= this.totalPages) {
-        this.loadUsersPage();
-      }
-    });
-    this.observer.observe(this.anchor.nativeElement);
+
+    this.loadPage(this.currentPage);
   }
 
-  ngOnDestroy() {
-    this.observer.disconnect();
-  }
-
-  async loadUsersPage() {
-    if (this.loading || this.page > this.totalPages) return;
+  async loadPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
     this.loading = true;
+    const params = { page: String(page), size: String(this.size) };
 
     const handler = (res: any) => {
-      this.users = [this.users, res.data].flat();
+      this.users = res.data;
       this.totalPages = res.totalPages;
-      this.page++;
+      this.currentPage = res.page;
+      this.buildPagesArray();
       this.loading = false;
     };
 
     if (this.isSearching && this.searchText) {
-      this.api.searchUsers(this.searchText, this.page, this.size, this.token).subscribe({
+      this.api.searchUsers(this.searchText, page, this.size, this.token).subscribe({
         next: (res: any) => {
           handler(res);
         },
@@ -76,7 +69,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      this.api.getUsers(this.page, this.size, this.token).subscribe({
+      this.api.getUsers(page, this.size, this.token).subscribe({
         next: (res: any) => {
           handler(res);
         },
@@ -85,6 +78,32 @@ export class UsersComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  searchUsers() {
+    this.isSearching = true;
+    this.users = [];
+    this.currentPage = 1;
+    this.totalPages = 1;
+    this.loadPage(1);
+  }
+
+  resetSearch() {
+    this.searchText = '';
+    this.isSearching = false;
+    this.users = [];    
+    this.currentPage = 1;
+    this.totalPages = 1;
+    this.loadPage(1);
+  }
+
+  private buildPagesArray() {
+    this.pagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  goToPage(page: number) {
+    if (page === this.currentPage) return;
+    this.loadPage(page);
   }
 
   openAddModal() {
@@ -106,7 +125,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         this.users = [];
         this.page = 1;
-        this.loadUsersPage();
+        this.loadPage(1);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al agregar usuario.';
@@ -144,7 +163,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         this.users = [];
         this.page = 1;
-        this.loadUsersPage();
+        this.loadPage(1);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar usuario.';
@@ -206,7 +225,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
         this.users = [];
         this.page = 1;
-        this.loadUsersPage();
+        this.loadPage(1);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar usuario.';
@@ -219,17 +238,6 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.userIdToDelete = null;
   }
 
-  async searchUsers() {
-    if (this.searchText == '') {
-      this.isSearching = false;
-    } else {
-      this.isSearching = true;
-    }
-    this.users = [];
-    this.page = 1;
-    this.totalPages = 1; 
-    this.loadUsersPage();
-  }
   private autoHideToast() {
     setTimeout(() => {
       this.showSuccessToast = false;
