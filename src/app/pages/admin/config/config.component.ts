@@ -29,6 +29,7 @@ export class ConfigComponent implements OnInit {
   adultPrice     = 0;
   seniorPrice    = 0;
   disabledPrice  = 0;
+  studentPrice  = 0;
 
   ngOnInit() {
     this.token = localStorage.getItem('authToken');
@@ -45,7 +46,7 @@ export class ConfigComponent implements OnInit {
         this.adultPrice = this.prices.find((p: { type: string; }) => p.type === 'Adulto')?.price ?? 0;
         this.seniorPrice = this.prices.find((p: { type: string; }) => p.type === 'Adulto mayor')?.price ?? 0;
         this.disabledPrice = this.prices.find((p: { type: string; }) => p.type === 'Discapacitado')?.price ?? 0;
-        console.log('Prices fetched:', this.prices);
+        this.studentPrice = this.prices.find((p: { type: string; }) => p.type === 'Estudiante')?.price ?? 0;
       },
       error: (err: any) => {
         console.error('Error fetching prices:', err);

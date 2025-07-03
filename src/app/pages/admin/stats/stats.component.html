@@ -72,8 +72,7 @@
               <h6 class="mb-1">
                 {{ selectedFilter === FilterType.DateRange ? 'Rango de fechas' :
                    selectedFilter === FilterType.TicketType ? 'Tipo de boleto' :
-                   selectedFilter === FilterType.Gender ? 'Género' :
-                   'Grupo de edad' }}
+                   selectedFilter === FilterType.Gender ? 'Género' : 'General' }}
               </h6>
               <h6 class="mb-0 text-secondary">
                 <ng-container *ngIf="selectedFilter === FilterType.DateRange">
@@ -103,19 +102,13 @@
                 class="btn btn-outline-secondary"
                 [class.active]="selectedFilter === FilterType.TicketType"
                 (click)="changeFilter(FilterType.TicketType)">
-          Tipo de boleto
+          Tipo de visitante
         </button>
         <button type="button"
                 class="btn btn-outline-secondary"
                 [class.active]="selectedFilter === FilterType.Gender"
                 (click)="changeFilter(FilterType.Gender)">
           Género
-        </button>
-        <button type="button"
-                class="btn btn-outline-secondary"
-                [class.active]="selectedFilter === FilterType.AgeGroup"
-                (click)="changeFilter(FilterType.AgeGroup)">
-          Grupo de edad
         </button>
       </div>
 

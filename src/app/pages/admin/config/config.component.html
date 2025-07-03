@@ -67,6 +67,20 @@
               </div>
             </div>
 
+            <div class="row align-items-center mb-3">
+              <div class="col-sm-7">
+                <label class="form-label mb-0">Estudiantes</label>
+              </div>
+              <div class="col-sm-5">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="prices[4].price"
+                  name="studentPrice"
+                />
+              </div>
+            </div>
+
             <div class="text-center">
               <button class="btn btn-dark px-5" (click)="updatePrices()" [disabled]="!isPricesChanged">Guardar cambios</button>
             </div>
@@ -114,26 +128,30 @@
             <ul class="list-unstyled mb-0">
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Niños (0‑12 años de edad)</span>
-                <strong>{{ childPrice }}</strong>
+                <strong>${{ childPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Adultos (13‑59 años de edad)</span>
-                <strong>{{ adultPrice }}</strong>
+                <strong>${{ adultPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Adultos mayores (60+)</span>
-                <strong>{{ seniorPrice }}</strong>
+                <strong>${{ seniorPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Personas con discapacidad</span>
-                <strong>{{ disabledPrice }}</strong>
+                <strong>${{ disabledPrice }}</strong>
+              </li>
+              <li class="d-flex justify-content-between py-2 border-bottom">
+                <span>Estudiantes</span>
+                <strong>${{ studentPrice }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2 border-bottom">
                 <span>Descuento para acompañantes</span>
-                <strong>{{ settingsObject.companion_discount }}</strong>
+                <strong>${{ settingsObject.companion_discount }}</strong>
               </li>
               <li class="d-flex justify-content-between py-2">
-                <span>Capacidad actual</span>
+                <span>Límite de aforo</span>
                 <strong>{{ settingsObject.capacity }}</strong>
               </li>
             </ul>

@@ -5,19 +5,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
-import { SellerLayoutComponent } from './layouts/seller-layout/seller-layout.component';
-import { AdminSidebarComponent } from './shared/admin-sidebar/admin-sidebar.component';
-import { SellerSidebarComponent } from './shared/seller-sidebar/seller-sidebar.component';
-import { UsersComponent } from './pages/admin/users/users.component';
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
+import { LayoutComponent } from './layouts/layout/layout.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AdminLayoutComponent,
-    SellerLayoutComponent,
-    AdminSidebarComponent,
-    SellerSidebarComponent,
+    SidebarComponent,
+    LayoutComponent,
   ],
   imports: [
     HttpClientModule,

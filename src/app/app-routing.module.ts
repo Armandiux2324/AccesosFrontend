@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
-// Layouts
-import { AdminLayoutComponent }  from './layouts/admin-layout/admin-layout.component';
-import { SellerLayoutComponent } from './layouts/seller-layout/seller-layout.component';
+import { LayoutComponent }  from './layouts/layout/layout.component';
 
 const routes: Routes = [
   {
@@ -12,8 +10,14 @@ const routes: Routes = [
       import('./pages/login/login.module').then(m => m.LoginModule)
   },
   {
+    path: 'sales',                    
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('./pages/sales/sales.module').then(m => m.SalesModule)
+  },
+  {
     path: 'dashboard-admin',
-    component: AdminLayoutComponent,
+    component: LayoutComponent,
     children: [
       {
         path: '',
@@ -31,22 +35,12 @@ const routes: Routes = [
         path: 'config', 
         loadChildren: () => import('./pages/admin/config/config.module').then(m => m.ConfigModule) 
       },
-      { path: 'sales', 
-        loadChildren: () => import('./pages/admin/sales/sales.module').then(m => m.SalesModule) 
-      },
     ]
   },
-
-  {
+   {
     path: 'dashboard-seller',
-    component: SellerLayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./pages/seller/dashboard-seller/dashboard-seller.module').then(m => m.DashboardSellerModule)
-      },
-    ]
+    component: LayoutComponent,
+    loadChildren: () => import('./pages/seller/dashboard-seller/dashboard-seller.module').then(m => m.DashboardSellerModule)
   },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },

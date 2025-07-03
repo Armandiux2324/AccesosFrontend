@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 
 import { DashboardSellerRoutingModule } from './dashboard-seller-routing.module';
 import { DashboardSellerComponent } from './dashboard-seller.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
   declarations: [
-    DashboardSellerComponent
+    DashboardSellerComponent,
   ],
   imports: [
     CommonModule,
-    DashboardSellerRoutingModule
+    DashboardSellerRoutingModule,
+    FormsModule,
   ]
 })
 export class DashboardSellerModule { }

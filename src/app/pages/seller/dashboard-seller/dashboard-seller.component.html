@@ -1,1 +1,208 @@
-<p>dashboard-seller works!</p>
+<div class="d-flex">
+  <main class="flex-grow-1 p-4" style="margin-left: 4.5rem;">
+    <header class="mb-4">
+      <h1>Bienvenido, {{ name }}</h1>
+    </header>
+
+    <div class="row mb-4 gx-3">
+      <div class="col-md-6">
+        <div class="card p-3 shadow-sm h-100">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-people-fill display-4 text-warning me-3"></i>
+            <div>
+              <h6 class="mb-1">Visitantes actuales</h6>
+              <h3 class="mb-1">{{ currentVisitors }}</h3>
+              <small class="text-muted">Ocupación: {{ occupancyPercent }}%</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card p-3 shadow-sm h-100">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-currency-dollar display-4 text-primary me-3"></i>
+            <div>
+              <h6 class="mb-1">{{ salesFilter ? 'Ventas por fechas' : 'Ventas totales' }}</h6>
+              <h3 class="mb-1">{{ totalSales | currency }}</h3>
+              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="salesFilter = !salesFilter">
+                {{ salesFilter ? 'Cerrar filtro' : 'Filtrar ventas' }}
+              </button>
+
+              <ng-container *ngIf="salesFilter" class="mt-2">
+                <div class="input-group">
+                  <input
+                    type="date"
+                    class="form-control date-filter"
+                    [(ngModel)]="salesRange.from"
+                    (change)="applySalesFilter()"
+                  />
+                  <span class="input-group-text">→</span>
+                  <input
+                    type="date"
+                    class="form-control date-filter"
+                    [(ngModel)]="salesRange.to"
+                    (change)="applySalesFilter()"
+                  />
+                  <button
+                    class="btn btn-outline-secondary"
+                    (click)="resetSalesFilter()"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Visitas recientes</span>
+        <button class="btn btn-primary btn-sm" (click)="redirectToSales()">
+          <i class="bi bi-plus-lg me-1"></i>
+          Registrar visita
+        </button>
+
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+                <th class="text-center">Fecha</th>
+                <th class="text-center">Inicio</th>
+                <th class="text-center">Fin</th>
+                <th class="text-center">Visitantes</th>
+                <th class="text-center">Total</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let v of recentVisits">
+                <td class="text-center">{{ v.created_at | date:'dd/MM/yyyy' }}</td>
+                <td class="text-center">{{ v.datetime_begin ? (v.datetime_begin | date:'shortTime') : '—' }}</td>
+                <td class="text-center">{{ v.datetime_end ? (v.datetime_end | date:'shortTime') : '—' }}</td>
+                <td class="px-1 text-center">
+                  <ng-container *ngFor="let type of getNonZeroVisitorTypes(v.visitors); let last = last">
+                    {{ countByType(v.visitors, type) }} {{ type }}
+                    <span *ngIf="!last">, </span>
+                  </ng-container>
+                </td>
+                <td class="text-center">${{ v.ticket.total }}</td>
+                <td class="text-center" *ngIf="v.ticket.status == 'Activo'">Activa</td>
+                <td class="text-center" *ngIf="v.ticket.status == 'Inactivo'">Finalizada</td>
+                <td class="text-center" *ngIf="v.ticket.status == 'Pasivo'">Sin iniciar</td>
+                <td class="px-1 text-center">
+                  <button 
+                    class="btn btn-sm btn-outline-success"
+                    (click)="onChangeStatus(v)"
+                  >
+                    Cambiar estado
+                  </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de cambiar estado -->
+<div
+  *ngIf="showStatusModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background: #ffc107;">
+        <h5 class="modal-title">Cambiar estado de visita</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeStatusModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="updateStatus()" #formPass="ngForm">
+
+          <div class="mb-3">
+            <label class="form-label">Selecciona el estado</label>
+            <select
+              class="form-select"
+              [(ngModel)]="status"
+              name="status"
+              required
+              #statusSelect="ngModel"
+            >
+              <option value="" disabled selected>Selecciona un estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Finalizado</option>
+              <option value="Pasivo">Sin iniciar</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeStatusModal()">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-warning"
+          [disabled]="formPass.invalid"
+          (click)="updateStatus()"
+        >
+          Cambiar estado
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div
+  aria-live="polite"
+  aria-atomic="true"
+  class="position-fixed top-0 start-50 translate-middle-x p-3"
+  style="z-index: 1055; width: 100%; max-width: 400px;"
+>
+  <div
+    *ngIf="showSuccessToast"
+    class="toast show align-items-center text-bg-success border-0 mx-auto"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showErrorToast"
+    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+</div>

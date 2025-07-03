@@ -41,7 +41,10 @@
             <small *ngIf="v.ticket.status == 'Pasivo'" class="badge bg-warning">Sin iniciar</small>
           </div>
           <div class="actions">
-            <button class="btn btn-sm btn-outline-success me-2" (click)="promptViewTicket(v.id)">
+            <button class="btn btn-sm btn-outline-success me-2" (click)="promptViewPayment(v.id)">
+              <i class="bi bi-currency-dollar"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="promptViewTicket(v.id)">
               <i class="bi bi-ticket-detailed"></i>
             </button>
             <button class="btn btn-sm btn-outline-danger me-2" (click)="promptDeleteVisit(v.id)">
@@ -207,6 +210,46 @@
           <hr class="ticket-separator" />
           <div class="ticket-total text-end">
             <h5>Total: {{ visitInfo.ticket.total }}</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de pago -->
+ <div
+  *ngIf="showPaymentModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ticket-modal">
+
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Pago de visita</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closePaymentModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body ticket">
+        <div class="ticket-header text-center">
+          <h4 class="mb-1">Información de pago</h4>
+        </div>
+        <hr class="ticket-separator" />
+
+        <div class="ticket-body">
+          <div class="ticket-info mb-2">
+            <p *ngIf="visitInfo.ticket.payment.payment_type == 'Tarjeta'"><strong>Referencia de pago:</strong> {{ visitInfo.ticket.payment.reference }}</p>
+            <p><strong>Tipo de pago: </strong>{{visitInfo.ticket.payment.payment_type}} </p>
+            <p><strong>Fecha y hora de pago:</strong>    {{ visitInfo.ticket.payment.payment_date | date:'short': 'UTC' }}</p>
+            <h5><strong>Total:</strong> ${{ visitInfo.ticket.total }}</h5>
           </div>
         </div>
       </div>

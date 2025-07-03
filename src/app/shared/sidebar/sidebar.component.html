@@ -1,0 +1,200 @@
+<nav class="sidebar d-flex flex-column text-white">
+  <div class="logo-container">
+    <button class="logo-btn" routerLink="/dashboard-admin">
+      <img src="/icon.png" alt="Logo" class="logo-img" />
+    </button>
+  </div>
+  <ul class="nav flex-column mb-auto text-center" *ngIf="role == 'Administrador' || role == 'Directora'">
+    <li class="nav-item">
+      <button routerLink="/dashboard-admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-house-door-fill"></i>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button routerLink="/dashboard-admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-people-fill"></i>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button routerLink="/dashboard-admin/stats" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-bar-chart-line-fill"></i>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button routerLink="/dashboard-admin/config" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-gear-fill"></i>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button routerLink="/sales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-calendar-check-fill"></i>
+      </button>
+    </li>
+  </ul>
+
+  <ul class="nav flex-column mb-auto text-center" *ngIf="role == 'Taquilla'">
+    <li class="nav-item">
+      <button routerLink="/dashboard-seller" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-house-door-fill"></i>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button routerLink="/sales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+        <i class="bi bi-calendar-check-fill"></i>
+      </button>
+    </li>
+  </ul>
+
+  <div class="logout-container">
+    <button class="lower-btn profile-btn" (click)="openProfile()">
+      <i class="bi bi-person-circle"></i>
+    </button>
+    <button class="lower-btn" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</nav>
+
+<div
+  *ngIf="profileModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content profile-modal">
+
+      <div class="modal-header border-0 pb-3">
+        <button
+          type="button"
+          class="btn-close btn-close-white ms-auto"
+          (click)="closeProfile()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body text-center">
+
+        <div class="profile-avatar mb-3">
+          <i class="bi bi-person-circle"></i>
+        </div>
+
+        <div class="profile-info">
+          <h4 class="name mb-1">{{ userInfo.name }}</h4>
+          <p class="username mb-2">{{ userInfo.username }}</p>
+          <div class="detail"><strong>Email:</strong> {{ userInfo.email }}</div>
+          <div class="detail"><strong>Rol:</strong> {{ userInfo.role }}</div>
+        </div>
+
+        <hr *ngIf="role == 'Administrador' || role == 'Directora'" class="my-3" />
+        <button class="btn btn-outline-primary w-100" (click)="openChangePassModal()" *ngIf="role == 'Administrador' || role == 'Directora'">
+          <i class="bi bi-key-fill me-2"></i> Cambiar contraseña
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de cambiar contraseña de administrador en sesión -->
+<div
+  *ngIf="showChangePassModal"
+  class="modal fade show change-pass-backdrop"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered change-pass-dialog">
+    <div class="modal-content change-pass-modal">
+
+      <div class="modal-header text-white" style="background: #ffc107;">
+        <h5 class="modal-title">Cambiar contraseña</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          (click)="closeChangePassModal()"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="confirmChangePass()" #formPass="ngForm">
+
+          <div class="mb-3">
+            <label class="form-label">Nueva contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              required
+              minlength="6"
+              [(ngModel)]="passwordData.newPass"
+              name="newPassword"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Confirmar contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              required
+              [(ngModel)]="passwordData.confPass"
+              name="confPassword"
+            />
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeChangePassModal()">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-warning"
+          [disabled]="formPass.invalid"
+          (click)="confirmChangePass()"
+        >
+          Cambiar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div
+  aria-live="polite"
+  aria-atomic="true"
+  class="position-fixed top-0 start-50 translate-middle-x p-3"
+  style="z-index: 1055; width: 100%; max-width: 400px;"
+>
+  <div
+    *ngIf="showSuccessToast"
+    class="toast show align-items-center text-bg-success border-0 mx-auto"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="showErrorToast"
+    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+</div>
+

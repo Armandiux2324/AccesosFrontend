@@ -82,6 +82,11 @@ export class ApiService {
     return this.http.get(this.url + '/week-sales', { headers });
   }
 
+  updateTicketStatus(id: string, status: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.put(this.url + '/ticket-status', { id, status }, { headers });
+  }
+
   //Visitors
   getTodayVisitors(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
@@ -101,11 +106,6 @@ export class ApiService {
   getVisitorsByGenderTotal(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/visitors-by-gender', { headers });
-  }
-
-  getVisitorsByAgeGroupTotal(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(this.url + '/visitors-by-age', { headers });
   }
 
   getActiveVisitorsCount(token: string) {
@@ -133,12 +133,6 @@ export class ApiService {
   updateSettings(id: string, capacity: number, companion_discount: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.put(this.url + '/settings', { id, capacity, companion_discount }, { headers });
-  }
-
-  //Payments
-  getPayments(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(this.url + '/payments', { headers });
   }
 
   //Visits

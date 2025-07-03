@@ -200,20 +200,8 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
             error: err => console.error(err)
           });
         break;
-
-      case FilterType.AgeGroup:
-        this.api.getVisitorsByAgeGroupTotal(this.token)
-          .subscribe({
-            next: (res: any) => {
-              this.chartData = res.data.map((d: any) => ({ label: d.ageGroup, value: d.count }));
-              this.renderChart('Grupo de edad');
-            },
-            error: err => console.error(err)
-          });
-        break;
     }
   }
-
 
   private renderChart(xLabel: string) {
     const labels = this.chartData.map(d => d.label);

@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ApiService } from '../../../services/api.service';
+import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-sales',
@@ -31,8 +31,9 @@ export class SalesComponent implements OnInit {
   showDeleteModal = false;
   visitIdToDelete: any = null;
 
-  visitIdForTicket: any = null;
+  visitId: any = null;
   showTicketModal = false;
+  showPaymentModal = false;
   visitInfo: any = {};
   childrenCount: number = 0;
   adultsCount: number = 0;
@@ -138,7 +139,7 @@ export class SalesComponent implements OnInit {
   }
 
   promptViewTicket(visitId: any) {
-    this.visitIdForTicket = visitId;
+    this.visitId = visitId;
     this.api.getVisitById(visitId, this.token).subscribe({
       next: (res: any) => {
         this.visitInfo = res.data;
@@ -159,7 +160,7 @@ export class SalesComponent implements OnInit {
           });
         } else {
           this.showTicketModal = false;
-          this.visitIdForTicket = null;
+          this.visitId = null;
           this.toastMessage = 'No se encontró el ticket asociado a esta visita.';
           this.showErrorToast = true;
           this.autoHideToast();
@@ -175,7 +176,35 @@ export class SalesComponent implements OnInit {
 
   closeTicketModal() {
     this.showTicketModal = false;
-    this.visitIdForTicket = null;
+    this.visitId = null;
+  }
+
+  promptViewPayment(visitId: any) {
+    this.visitId = visitId;
+    this.api.getVisitById(visitId, this.token).subscribe({
+      next: (res: any) => {
+        this.visitInfo = res.data;
+        if (this.visitInfo) {
+          this.showPaymentModal = true;
+        } else {
+          this.showPaymentModal = false;
+          this.visitId = null;
+          this.toastMessage = 'No se encontró el pago asociado a esta visita.';
+          this.showErrorToast = true;
+          this.autoHideToast();
+        }
+      },
+      error: (error: any) => {
+        this.toastMessage = 'Error al obtener el pago.';
+        this.showErrorToast = true;
+        this.autoHideToast();
+      }
+    });
+  }
+
+  closePaymentModal() {
+    this.showPaymentModal = false;
+    this.visitId = null;
   }
 
   private autoHideToast() {
