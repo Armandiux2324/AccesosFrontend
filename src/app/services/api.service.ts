@@ -57,6 +57,11 @@ export class ApiService {
   }
 
   //Tickets
+  addTicket(visit_id: string, payment_id: string, discount: string, token: string ){
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/tickets', { visit_id, payment_id, discount }, { headers });
+  }
+
   getTickets(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/tickets', { headers });
@@ -88,6 +93,10 @@ export class ApiService {
   }
 
   //Visitors
+  addVisitor(visit_id: string, price_id: string, gender: string, token: string){
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/visitors', {gender, price_id, visit_id}, {headers});
+  }
   getTodayVisitors(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/today-visitors', { headers });
@@ -136,6 +145,11 @@ export class ApiService {
   }
 
   //Visits
+  addVisit(contact: string, township: string, school: string, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/visits', { contact, township, school }, { headers });
+  }
+
   getVisitById(id: any, token: string) {
     const params = new HttpParams().set('id', id);
     const headers = new HttpHeaders().set('Authorization', token);
@@ -158,6 +172,12 @@ export class ApiService {
     const headers = new HttpHeaders().set('Authorization', token);
     const params = new HttpParams().set('date', date).set('page', page.toString()).set('size', size.toString());
     return this.http.get<{ data: any[]; total: number; page: number; totalPages: number; }>(this.url + '/search-visits', { headers, params });
+  }
+
+  //Payments
+  addPayment(payment_type: string, reference: string, total: number, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/payments', { reference, payment_type, total }, { headers });
   }
 
 }

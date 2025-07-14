@@ -61,7 +61,7 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Visitas recientes</span>
-        <button class="btn btn-primary btn-sm" (click)="redirectToSales()">
+        <button class="btn btn-primary btn-sm" (click)="redirectToAddVisit()">
           <i class="bi bi-plus-lg me-1"></i>
           Registrar visita
         </button>
@@ -92,10 +92,10 @@
                     <span *ngIf="!last">, </span>
                   </ng-container>
                 </td>
-                <td class="text-center">${{ v.ticket.total }}</td>
+                <td class="text-center">${{ v.ticket.payment.total }}</td>
                 <td class="text-center" *ngIf="v.ticket.status == 'Activo'">Activa</td>
                 <td class="text-center" *ngIf="v.ticket.status == 'Inactivo'">Finalizada</td>
-                <td class="text-center" *ngIf="v.ticket.status == 'Pasivo'">Sin iniciar</td>
+                <td class="text-center" *ngIf="v.ticket.status == 'Sin iniciar'">Sin iniciar</td>
                 <td class="px-1 text-center">
                   <button 
                     class="btn btn-sm btn-outline-success"
@@ -149,7 +149,7 @@
               <option value="" disabled selected>Selecciona un estado</option>
               <option value="Activo">Activo</option>
               <option value="Inactivo">Finalizado</option>
-              <option value="Pasivo">Sin iniciar</option>
+              <option value="Sin iniciar">Sin iniciar</option>
             </select>
           </div>
         </form>

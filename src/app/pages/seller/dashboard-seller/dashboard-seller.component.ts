@@ -62,6 +62,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
     this.api.getVisitsPaginated(1, 7, this.token).subscribe({
       next: (res: any) => {
         this.recentVisits = res.data;
+        console.log('Recent Visits:', this.recentVisits);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar las visitas recientes.';
@@ -179,7 +180,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
         this.showSuccessToast = true;
         this.showStatusModal = false;
         this.autoHideToast();
-        this.getRecentVisits();
+        this.refreshAll();
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar el estado de la visita.';
@@ -191,6 +192,11 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
   }
 
   redirectToSales() {
+    this.router.navigate(['/sales']);
+  }
+
+  redirectToAddVisit() {
+    localStorage.setItem('showAddModal', 'true');
     this.router.navigate(['/sales']);
   }
 

@@ -107,11 +107,11 @@ export class UsersComponent implements OnInit {
   }
 
   openAddModal() {
-    this.dataToAdd = {};
     this.showAddModal = true;
   }
 
   closeAddModal() {
+    this.dataToAdd = {};
     this.showAddModal = false;
   }
 

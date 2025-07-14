@@ -83,3 +83,18 @@ input.form-control {
     }
   }
 }
+
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.autocomplete-panel-over {
+  z-index: 2000 !important;
+}
+
