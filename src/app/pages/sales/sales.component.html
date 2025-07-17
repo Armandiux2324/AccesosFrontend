@@ -39,7 +39,7 @@
           <div class="flex-grow-1">
             <h5 class="mb-1">Fecha de visita: {{ v.created_at | date:'dd/MM/yyyy':'UTC' }}</h5>
             <p class="mb-0 text-muted">Contacto: {{ v.contact }}</p>
-            <p *ngIf="v.duration_minutes != null" class="mb-0 text-muted">Duración de la visita: {{ v.duration_minutes | duration }}</p>
+            <p *ngIf="v.duration_minutes > 0" class="mb-0 text-muted">Duración de la visita: {{ v.duration_minutes | duration }}</p>
             <p class="mb-0 text-muted">Municipio de procedencia: {{ v.township }}</p>
             <p *ngIf="v.school" class="mb-0 text-muted">Escuela de procedencia: {{ v.school }}</p>
             <small *ngIf="v.ticket.status == 'Activo'" class="badge bg-success">Activa</small>
@@ -47,7 +47,7 @@
             <small *ngIf="v.ticket.status == 'Sin iniciar'" class="badge bg-warning">Sin iniciar</small>
           </div>
           <div class="actions">
-            <button class="btn btn-sm btn-outline-warning me-2 text-dark" (click)="onChangeStatus(v)">
+            <button *ngIf="role == 'Taquilla'" class="btn btn-sm btn-outline-warning me-2 text-dark" (click)="onChangeStatus(v)">
               <i class="bi bi-pencil-square me-2"></i>
               Cambiar estado
             </button>

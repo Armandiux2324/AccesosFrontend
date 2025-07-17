@@ -40,7 +40,7 @@ export class UsersComponent implements OnInit {
   userIdToDelete: any = null;
 
   ngOnInit() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.userId = localStorage.getItem('userId');
 
     this.loadPage(this.currentPage);

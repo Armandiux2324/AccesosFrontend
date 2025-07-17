@@ -110,6 +110,12 @@
                 (click)="changeFilter(FilterType.Gender)">
           Género
         </button>
+        <button type="button"
+                class="btn btn-outline-secondary"
+                [class.active]="selectedFilter === FilterType.Township"
+                (click)="changeFilter(FilterType.Township)">
+          Municipio
+        </button>
       </div>
 
       <div *ngIf="selectedFilter === FilterType.DateRange" class="mb-3">

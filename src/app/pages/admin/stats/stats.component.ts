@@ -10,7 +10,8 @@ enum FilterType {
   DateRange = 'date-range',
   TicketType = 'ticket-type',
   Gender = 'gender',
-  AgeGroup = 'age-group'
+  AgeGroup = 'age-group',
+  Township = 'township'
 }
 
 @Component({
@@ -45,10 +46,10 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   private chart!: Chart;
 
   ngOnInit() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.initDateRange();
     this.refreshAll();
-    this.refreshTimerId = window.setInterval(() => this.refreshAll(), 30_000);
+    this.refreshTimerId = window.setInterval(() => this.refreshAll(), 5_000);
   }
 
   ngAfterViewInit() {
@@ -73,7 +74,7 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshAll() {
     this.loadCurrentVisitors();
     this.loadCapacity();
-    
+
     if (this.salesFilter && this.salesRange.from && this.salesRange.to) {
       this.applySalesFilter();
     } else {
@@ -97,7 +98,7 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async loadCapacity() {
     this.api.getSettings(this.token).subscribe({
-      next: (res: any) => { 
+      next: (res: any) => {
         this.capacity = res.data.capacity;
         this.calculateOccupancy();
       },
@@ -123,7 +124,7 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dateRange.to = today.toISOString().slice(0, 10);
 
     this.salesRange.from = this.dateRange.from;
-    this.salesRange.to   = this.dateRange.to;
+    this.salesRange.to = this.dateRange.to;
   }
 
   async loadTotalSales() {
@@ -200,6 +201,17 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
             error: err => console.error(err)
           });
         break;
+
+      case FilterType.Township:
+        this.api.getVisitorsByTownship(this.token)
+          .subscribe({
+            next: (res: any) => {
+              this.chartData = res.data.map((d: any) => ({ label: d.township, value: d.count }));
+              this.renderChart('Municipio');
+            },
+            error: err => console.error(err)
+          });
+        break;
     }
   }
 
@@ -223,15 +235,16 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     switch (this.selectedFilter) {
       case this.FilterType.DateRange: return `Rango de fechas (${this.dateRange.from} → ${this.dateRange.to})`;
       case this.FilterType.TicketType: return 'Tipo de boleto';
-      case this.FilterType.Gender:     return 'Género';
-      case this.FilterType.AgeGroup:   return 'Grupo de edad';
+      case this.FilterType.Gender: return 'Género';
+      case this.FilterType.AgeGroup: return 'Grupo de edad';
+      case this.FilterType.Township: return 'Municipio';
     }
   }
 
   async exportToExcel() {
     // Capturar gráfica como imagen
     const canvas = document.getElementById('statisticsChart') as HTMLCanvasElement;
-    const ctx    = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d')!;
 
     // Para fondo blanco de la imagen
     ctx.save();
@@ -272,7 +285,7 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     // Generar el archivo y ejecuta descarga del mismo
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/octet-stream' });
-    saveAs(blob, `estadisticas_${this.currentFilterLabel.replace(/[^a-z0-9]/gi,'_')}.xlsx`);
+    saveAs(blob, `estadisticas_${this.currentFilterLabel.replace(/[^a-z0-9]/gi, '_')}.xlsx`);
   }
 
 }

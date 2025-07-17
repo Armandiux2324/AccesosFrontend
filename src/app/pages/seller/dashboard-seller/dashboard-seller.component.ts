@@ -36,7 +36,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
   toastMessage = '';
 
   ngOnInit() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.name = localStorage.getItem('name');
     this.refreshAll();
     this.refreshTimerId = window.setInterval(() => this.refreshAll(), 30_000);

@@ -23,7 +23,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy{
   dataPoints: number[] = [];
   
   ngOnInit() {
-      this.token = localStorage.getItem('authToken');
+      this.token = localStorage.getItem('accessToken');
       this.name = localStorage.getItem('name');
       this.loadMetrics();
       this.loadChartData();
@@ -31,7 +31,8 @@ export class DashboardAdminComponent implements OnInit, OnDestroy{
       this.refreshTimerId = window.setInterval(() => {
         this.loadMetrics();
         this.loadChartData();
-      }, 30_000);
+        console.log('Metrics and chart data refreshed');
+      }, 5_000);
   }
 
   ngOnDestroy() {

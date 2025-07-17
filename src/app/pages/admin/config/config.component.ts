@@ -32,7 +32,7 @@ export class ConfigComponent implements OnInit {
   studentPrice  = 0;
 
   ngOnInit() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.getPrices();
     this.getSettings();
   }

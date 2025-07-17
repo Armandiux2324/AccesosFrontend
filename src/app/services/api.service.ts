@@ -14,7 +14,12 @@ export class ApiService {
 
   //Users
   login(user: string, pass: string) {
-    return this.http.post(this.url + '/login', { identificator: user, password: pass });
+    return this.http.post<{
+      message: string;
+      accessToken: string;
+      refreshToken: string;
+      user: { id: number; username: string; name: string; role: string };
+    }>(this.url + '/login', { identificator: user, password: pass });
   }
 
   getUsers(page: number, size: number, token: string) {
@@ -57,7 +62,7 @@ export class ApiService {
   }
 
   //Tickets
-  addTicket(visit_id: string, payment_id: string, discount: string, token: string ){
+  addTicket(visit_id: string, payment_id: string, discount: string, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.post(this.url + '/tickets', { visit_id, payment_id, discount }, { headers });
   }
@@ -93,9 +98,9 @@ export class ApiService {
   }
 
   //Visitors
-  addVisitor(visit_id: string, price_id: string, gender: string, token: string){
+  addVisitor(visit_id: string, price_id: string, gender: string, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.post(this.url + '/visitors', {gender, price_id, visit_id}, {headers});
+    return this.http.post(this.url + '/visitors', { gender, price_id, visit_id }, { headers });
   }
   getTodayVisitors(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
@@ -120,6 +125,11 @@ export class ApiService {
   getActiveVisitorsCount(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/active-visitors', { headers });
+  }
+
+  getVisitorsByTownship(token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(this.url + '/visitors-by-township', { headers });
   }
 
   //Prices

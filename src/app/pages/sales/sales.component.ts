@@ -4,9 +4,7 @@ import townships from '../../data/zacatecas-townships.json';
 
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { forkJoin } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-sales',
@@ -66,8 +64,10 @@ export class SalesComponent implements OnInit {
   showStatusModal = false;
   status: any = null;
 
+  private refreshTimerId!: number;
+
   ngOnInit() {
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.userId = localStorage.getItem('userId');
     this.role = localStorage.getItem('role');
     this.tempVar = localStorage.getItem('showAddModal');
@@ -84,8 +84,17 @@ export class SalesComponent implements OnInit {
       localStorage.removeItem('showAddModal');
     }
 
-    this.getPrices();
+    this.refreshAll();
+    this.refreshTimerId = window.setInterval(() => this.refreshAll(), 2_000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.refreshTimerId);
+  }
+
+  private refreshAll() {
     this.getDiscount();
+    this.getPrices();
     this.loadPage(this.currentPage);
   }
 
@@ -423,7 +432,7 @@ export class SalesComponent implements OnInit {
         this.showSuccessToast = true;
         this.showStatusModal = false;
         this.autoHideToast();
-        this.loadPage(1);
+        this.loadPage(this.currentPage);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar el estado de la visita.';

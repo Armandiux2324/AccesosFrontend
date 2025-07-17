@@ -25,7 +25,7 @@ export class SidebarComponent implements OnInit{
   passwordData: any = {};
 
   ngOnInit(){
-    this.token = localStorage.getItem('authToken');
+    this.token = localStorage.getItem('accessToken');
     this.userId = localStorage.getItem('userId');
     this.role = localStorage.getItem('role');
   }
