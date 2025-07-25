@@ -4,6 +4,7 @@ import { Chart, registerables } from 'chart.js';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
+// Definir la estructura de los datos de la gráfica
 interface ChartData { label: string; value: number; }
 
 enum FilterType {
@@ -29,13 +30,13 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshTimerId!: number;
 
   // cuadros
-  currentVisitors = 0;
-  capacity = 0;
-  occupancyPercent = 0;
+  currentVisitors: number = 0;
+  capacity: number = 0;
+  occupancyPercent: number = 0;
 
-  totalSales = 0;
-  salesFilter = false;
-  salesRange = { from: '', to: '' };
+  totalSales: number = 0;
+  salesFilter: boolean = false;
+  salesRange: any = { from: '', to: '' };
 
   // filtros
   selectedFilter: FilterType = FilterType.DateRange;

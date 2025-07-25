@@ -52,37 +52,25 @@
   </div>
 </div>
 
-<div
-  aria-live="polite"
-  aria-atomic="true"
-  class="position-fixed top-0 start-50 translate-middle-x p-3"
-  style="z-index: 1055; width: 100%; max-width: 400px;"
->
-  <div
-    *ngIf="showSuccessToast"
-    class="toast show align-items-center text-bg-success border-0 mx-auto"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
-      </div>
+<!-- Toasts -->
+<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <label class="me-auto">Información</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
     </div>
   </div>
 
-  <div
-    *ngIf="showErrorToast"
-    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
-      </div>
+  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-danger text-white">
+      <label class="me-auto">Error</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
     </div>
   </div>
 </div>

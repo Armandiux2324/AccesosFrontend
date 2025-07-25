@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
+import { Toast } from 'bootstrap';
 
 @Component({
   selector: 'app-users',
@@ -23,8 +24,6 @@ export class UsersComponent implements OnInit {
   searchText: string = '';
   isSearching = false;
 
-  showSuccessToast = false;
-  showErrorToast = false;
   toastMessage = '';
 
   showAddModal = false;
@@ -119,8 +118,7 @@ export class UsersComponent implements OnInit {
     this.api.addUser(this.dataToAdd.name, this.dataToAdd.username, this.dataToAdd.email, this.dataToAdd.password, this.dataToAdd.role, this.token).subscribe({
       next: (data: any) => {
         this.toastMessage = 'Usuario agregado exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.closeAddModal();
 
         this.users = [];
@@ -129,8 +127,7 @@ export class UsersComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastMessage = 'Error al agregar usuario.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -143,8 +140,7 @@ export class UsersComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar información del usuario.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -157,8 +153,7 @@ export class UsersComponent implements OnInit {
     this.api.updateUser(this.dataToUpdate.id, this.dataToUpdate.name, this.dataToUpdate.username, this.dataToUpdate.email, this.dataToUpdate.role, this.token).subscribe({
       next: (data: any) => {
         this.toastMessage = 'Usuario actualizado exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.closeUpdateModal();
 
         this.users = [];
@@ -167,8 +162,7 @@ export class UsersComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar usuario.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -186,22 +180,19 @@ export class UsersComponent implements OnInit {
   confirmChangePass() {
     if (this.passwordData.newPass !== this.passwordData.confPass) {
       this.toastMessage = 'Las contraseñas no coinciden';
-      this.showErrorToast = true;
-      this.autoHideToast();
+      this.showToast('error');
       return;
     }
 
     this.api.changePassword(this.passwordData.id, this.passwordData.newPass, this.passwordData.confPass, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Contraseña del usuario cambiada exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.closeChangePassModal();
       },
       error: (err: any) => {
         this.toastMessage = 'Error al cambiar contraseña';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -220,8 +211,7 @@ export class UsersComponent implements OnInit {
     this.api.deleteUser(this.userIdToDelete, this.token).subscribe({
       next: (data: any) => {
         this.toastMessage = 'Usuario eliminado exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
 
         this.users = [];
         this.page = 1;
@@ -229,8 +219,7 @@ export class UsersComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar usuario.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
 
@@ -238,10 +227,14 @@ export class UsersComponent implements OnInit {
     this.userIdToDelete = null;
   }
 
-  private autoHideToast() {
+  private showToast(type: 'success' | 'error') {
+    const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
     setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
+      toast.hide();
     }, 3000);
   }
 }

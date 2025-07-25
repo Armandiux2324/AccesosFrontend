@@ -16,16 +16,16 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService, private router: Router) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // 1) Si es la petición a /refresh, no la envuelvas
+    //Si es la petición a /refresh, no se envuelve en el interceptor para evitar un bucle infinito
     if (req.url.endsWith('/refresh')) {
       return next.handle(req);
     }
 
-    // 2) Inyecta tu access token
+    // Inyectar access token
     const token = this.auth.getAccessToken();
     const authReq = token ? req.clone({ setHeaders: { Authorization: token } }) : req;
 
-    // 3) Manejo estándar de 401
+    // Manejo estándar de 401
     return next.handle(authReq).pipe(
       catchError(err => {
         if (err instanceof HttpErrorResponse && err.status === 401) {
@@ -53,14 +53,14 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError(() => {
           this.refreshing = false;
-          // Si el refresh falla, ahí sí cerramos sesión
+          // Si el refresh falla, ahí se cierra la sesión
           this.auth.clearTokens();
           this.router.navigate(['/login']);
           return throwError(() => new Error('Session expired'));
         })
       );
     } else {
-      // Si ya está refrescando, esperamos
+      // Si ya está refrescando, esperar a que se complete y reintentar la petición original con el nuevo token
       return this.refreshSubject.pipe(
         filter(token => token != null),
         take(1),

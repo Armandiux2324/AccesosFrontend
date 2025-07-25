@@ -2,12 +2,10 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment.prod';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-
   constructor(private http: HttpClient) { }
 
   url = environment.backend;
@@ -62,9 +60,9 @@ export class ApiService {
   }
 
   //Tickets
-  addTicket(visit_id: string, payment_id: string, discount: string, token: string) {
+  addTicket(visit_id: string, payment_id: string, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.post(this.url + '/tickets', { visit_id, payment_id, discount }, { headers });
+    return this.http.post(this.url + '/tickets', { visit_id, payment_id }, { headers });
   }
 
   getTickets(token: string) {
@@ -185,9 +183,9 @@ export class ApiService {
   }
 
   //Payments
-  addPayment(payment_type: string, reference: string, total: number, token: string) {
+  addPayment(cash: number, card: number, payment_check: number, total: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.post(this.url + '/payments', { reference, payment_type, total }, { headers });
+    return this.http.post(this.url + '/payments', { cash, card, payment_check, total }, { headers });
   }
 
 }

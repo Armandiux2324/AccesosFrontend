@@ -5,3 +5,33 @@
 main {
   overflow-y: auto;
 }
+
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  background-color: #343a40;
+  color: #adb5bd;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 1000;
+
+  .footer-center {
+    font-size: 0.9rem;
+  }
+
+  .footer-logo {
+    img {
+      max-height: 3rem;
+      max-width: 100%;
+    }
+  }
+}
+
+.main-content {
+  padding-bottom: 3.5rem;
+}

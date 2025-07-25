@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import townships from '../../data/zacatecas-townships.json';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 import { FormControl } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { Toast } from 'bootstrap';
 
 @Component({
   selector: 'app-sales',
@@ -13,6 +16,7 @@ import { Observable } from 'rxjs';
   styleUrl: './sales.component.scss'
 })
 export class SalesComponent implements OnInit {
+  @ViewChild('ticketPrint', { static: false }) ticketPrint!: ElementRef<HTMLDivElement>;
   constructor(private api: ApiService) { }
   token: any = null;
   userId: any = null;
@@ -21,41 +25,69 @@ export class SalesComponent implements OnInit {
   prices: any[] = [];
   discountValue: number = 0;
 
-  page = 1;
-  size = 20;
-  totalPages = 1;
-  currentPage = 1;
+  page: number = 1;
+  size: number = 20;
+  totalPages: number = 1;
+  currentPage: number = 1;
   pagesArray: number[] = [];
-  loading = false;
+  loading: boolean = false;
 
-  searchDateText = '';
-  isSearching = false;
+  searchDateText: string = '';
+  isSearching: boolean = false;
 
-  showSuccessToast = false;
-  showErrorToast = false;
-  toastMessage = '';
+  toastMessage: string = '';
 
-  showAddModal = false;
+  showAddModal: boolean = false;
   tempVar: any = null;
   visitorInfo: any = {};
   visitors: any[] = [];
   visitToAdd: any = {};
   discount: any = '';
-  paymentData: any = {};
   quantity: number = 0;
   total: number = 0;
 
-  showDeleteModal = false;
+  showDeleteModal: boolean = false;
   visitIdToDelete: any = null;
 
+  addPaymentModal: boolean = false;
+  paymentData: any = {};
+
   visitId: any = null;
-  showTicketModal = false;
-  showPaymentModal = false;
+  showTicketModal: boolean = false;
   visitInfo: any = {};
-  childrenCount: number = 0;
-  adultsCount: number = 0;
-  seniorsCount: number = 0;
-  disabledCount: number = 0;
+  maleChildrenCount: number = 0;
+  femaleChildrenCount: number = 0;
+  maleAdultsCount: number = 0;
+  femaleAdultsCount: number = 0;
+  maleSeniorsCount: number = 0;
+  femaleSeniorsCount: number = 0;
+  maleDisabledCount: number = 0;
+  femaleDisabledCount: number = 0;
+  maleTeachersCount: number = 0;
+  femaleTeachersCount: number = 0;
+
+  totalsByType: any = {
+    'Niño': {
+      male: 0,
+      female: 0
+    },
+    'Adulto': {
+      male: 0,
+      female: 0
+    },
+    'Adulto Mayor': {
+      male: 0,
+      female: 0
+    },
+    'Discapacitado': {
+      male: 0,
+      female: 0
+    },
+    'Docente': {
+      male: 0,
+      female: 0
+    }
+  };
 
   townshipCtrl = new FormControl('');
   townships: any[] = townships;
@@ -113,7 +145,6 @@ export class SalesComponent implements OnInit {
     this.api.getPrices(this.token).subscribe({
       next: (res: any) => {
         this.prices = res.data;
-        console.log('Prices fetched successfully:', this.prices);
       },
       error: (err: any) => {
         console.error('Error fetching prices:', err);
@@ -129,7 +160,6 @@ export class SalesComponent implements OnInit {
   loadPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
     this.loading = true;
-    const params = { page: String(page), size: String(this.size) };
 
     const handler = (res: any) => {
       this.visits = res.data
@@ -200,16 +230,14 @@ export class SalesComponent implements OnInit {
     this.api.deleteVisit(this.visitIdToDelete, this.token).subscribe({
       next: (data: any) => {
         this.toastMessage = 'Visita eliminada exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.visits = [];
         this.page = 1;
         this.loadPage(1);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al eliminar visita.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
 
@@ -226,68 +254,81 @@ export class SalesComponent implements OnInit {
           this.showTicketModal = true;
           res.data.visitors.forEach((visitor: any) => {
             if (visitor.price.type == 'Niño') {
-              this.childrenCount++;
+              if (visitor.gender == 'Masculino') {
+                this.maleChildrenCount++;
+                this.totalsByType['Niño'].male += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              } else {
+                this.femaleChildrenCount++;
+                this.totalsByType['Niño'].female += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              }
             } else if (visitor.price.type == 'Adulto') {
-              this.adultsCount++;
+              if (visitor.gender == 'Masculino') {
+                this.maleAdultsCount++;
+                this.totalsByType['Adulto'].male += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              } else {
+                this.femaleAdultsCount++;
+                this.totalsByType['Adulto'].female += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              }
             } else if (visitor.price.type == 'Adulto mayor') {
-              this.seniorsCount++;
+              if (visitor.gender == 'Masculino') {
+                this.maleSeniorsCount++;
+                this.totalsByType['Adulto Mayor'].male += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              } else {
+                this.femaleSeniorsCount++;
+                this.totalsByType['Adulto Mayor'].female += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              }
             } else if (visitor.price.type == 'Discapacitado') {
-              this.disabledCount++;
-            } else {
-              console.warn('Tipo de visitante desconocido:', visitor.price.type);
+              if (visitor.gender == 'Masculino') {
+                this.maleDisabledCount++;
+                this.totalsByType['Discapacitado'].male += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              } else {
+                this.femaleDisabledCount++;
+                this.totalsByType['Discapacitado'].female += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              }
+            } else if (visitor.price.type == 'Docente') {
+              if (visitor.gender == 'Masculino') {
+                this.maleTeachersCount++;
+                this.totalsByType['Docente'].male += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              } else {
+                this.femaleTeachersCount++;
+                this.totalsByType['Docente'].female += this.prices.find(p => p.id == visitor.price_id)?.price || 0;
+              }
             }
           });
         } else {
           this.showTicketModal = false;
           this.visitId = null;
           this.toastMessage = 'No se encontró el ticket asociado a esta visita.';
-          this.showErrorToast = true;
-          this.autoHideToast();
+          this.showToast('error');
         }
       },
       error: (error: any) => {
         this.toastMessage = 'Error al obtener el ticket.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
 
   closeTicketModal() {
     this.showTicketModal = false;
-    this.childrenCount = 0;
-    this.adultsCount = 0;
-    this.seniorsCount = 0;
-    this.disabledCount = 0;
+    this.maleChildrenCount = 0;
+    this.femaleChildrenCount = 0;
+    this.maleAdultsCount = 0;
+    this.femaleAdultsCount = 0;
+    this.maleSeniorsCount = 0;
+    this.femaleSeniorsCount = 0;
+    this.maleDisabledCount = 0;
+    this.femaleDisabledCount = 0;
+    this.maleTeachersCount = 0;
+    this.femaleTeachersCount = 0;
     this.visitId = null;
-  }
-
-  promptViewPayment(visitId: any) {
-    this.visitId = visitId;
-    this.api.getVisitById(visitId, this.token).subscribe({
-      next: (res: any) => {
-        this.visitInfo = res.data;
-        if (this.visitInfo) {
-          this.showPaymentModal = true;
-        } else {
-          this.showPaymentModal = false;
-          this.visitId = null;
-          this.toastMessage = 'No se encontró el pago asociado a esta visita.';
-          this.showErrorToast = true;
-          this.autoHideToast();
-        }
-      },
-      error: (error: any) => {
-        this.toastMessage = 'Error al obtener el pago.';
-        this.showErrorToast = true;
-        this.autoHideToast();
-      }
-    });
-  }
-
-  closePaymentModal() {
-    this.showPaymentModal = false;
-    this.visitId = null;
+    this.totalsByType = {
+      'Niño': { male: 0, female: 0 },
+      'Adulto': { male: 0, female: 0 },
+      'Adulto Mayor': { male: 0, female: 0 },
+      'Discapacitado': { male: 0, female: 0 },
+      'Docente': { male: 0, female: 0 }
+    };
   }
 
   openAddModal() {
@@ -296,7 +337,20 @@ export class SalesComponent implements OnInit {
 
   closeAddModal() {
     this.visitToAdd = {};
+    this.visitors = [];
+    this.paymentData = {};
+    this.total = 0;
+    this.visitorInfo = {};
     this.showAddModal = false;
+  }
+
+  openAddPaymentModal() {
+    this.addPaymentModal = true;
+  }
+
+  closeAddPaymentModal() {
+    this.addPaymentModal = false;
+    this.visitId = null;
   }
 
   getPriceType(priceId: number) {
@@ -313,8 +367,25 @@ export class SalesComponent implements OnInit {
 
   onDiscountChange() {
     if (this.discount == 'Sí') {
+      const hasDisabled = this.visitors.some(v => {
+        const priceObj = this.prices.find(p => p.id == v.price_id);
+        return priceObj?.type == 'Discapacitado';
+      });
+
+      if(!hasDisabled){
+        this.toastMessage = 'No se puede aplicar descuento: no hay visitantes discapacitados.';
+        this.showToast('error');
+        this.discount = 'No';
+        this.total = this.calculateTotal();
+        return;
+      }
       this.total = this.calculateTotal()
-      this.total = this.total - this.discountValue;
+      this.visitors.forEach(visitor => {
+        let v_price = visitor.price = this.prices.find(p => p.id == visitor.price_id);
+        if(v_price.type != 'Discapacitado') {
+          this.total = this.total - this.discountValue;
+        }
+      });
     } else {
       this.total = this.calculateTotal();
     }
@@ -339,13 +410,13 @@ export class SalesComponent implements OnInit {
       this.quantity = 0;
     } else {
       this.toastMessage = 'Por favor, ingrese la información del visitante.';
-      this.showErrorToast = true;
-      this.autoHideToast();
+      this.showToast('error');
     }
   }
 
   removeVisitor(index: number) {
     this.visitors.splice(index, 1);
+    this.total = this.calculateTotal();
   }
 
   addVisit() {
@@ -353,10 +424,10 @@ export class SalesComponent implements OnInit {
       next: (visitRes: any) => {
         this.visitors.forEach((visitor: any) => {
           this.api.addVisitor(visitRes.data.id, visitor.price_id, visitor.gender, this.token).subscribe({
-            next: (visitorRes: any) => {
-              console.log('Visitor added successfully:', visitorRes);
-            }, error: (err: any) => {
-              console.error('Error adding visitor:', err);
+            next: (visitorRes: any) => {}, 
+            error: (err: any) => {
+              this.toastMessage = 'Error al agregar visitante.';
+              this.showToast('error');
             }
           });
         });
@@ -364,9 +435,9 @@ export class SalesComponent implements OnInit {
         if(this.discount == 'Sí'){
           total = total - this.discountValue;
         }
-        this.api.addPayment(this.paymentData.payment_type, this.paymentData.reference, total, this.token).subscribe({
+        this.api.addPayment(this.paymentData.cash, this.paymentData.card, this.paymentData.payment_check, total, this.token).subscribe({
           next: (paymentRes: any) => {
-            this.api.addTicket(visitRes.data.id, paymentRes.data.id, this.discount, this.token).subscribe({
+            this.api.addTicket(visitRes.data.id, paymentRes.data.id, this.token).subscribe({
               next: (ticketRes: any) => {
                 this.visitToAdd = {};
                 this.visitors = [];
@@ -376,27 +447,29 @@ export class SalesComponent implements OnInit {
 
                 this.promptViewTicket(visitRes.data.id);
                 this.showTicketModal = true;
+                this.printTicket();
 
                 this.showAddModal = false;
+                this.addPaymentModal = false;
                 this.toastMessage = 'Visita agregada exitosamente.';
-                this.showSuccessToast = true;
-                this.autoHideToast();
+                this.showToast('success');
                 this.visits = [];
                 this.page = 1;
                 this.loadPage(1);
               }
               , error: (err: any) => {
-                console.error('Error adding ticket:', err);
+                this.toastMessage = 'Error al agregar ticket.';
+                this.showToast('error');
               }
             });
           }, error: (err: any) => {
-            console.error('Error adding payment:', err);
+            this.toastMessage = 'Error al agregar pago.';
+            this.showToast('error');
           }
         });
       }, error: (err: any) => {
         this.toastMessage = 'Error al agregar visita.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -409,8 +482,7 @@ export class SalesComponent implements OnInit {
       }, 
       error: (error: any) => {
         this.toastMessage = 'Error al cargar la información de la visita.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -429,25 +501,60 @@ export class SalesComponent implements OnInit {
     this.api.updateTicketStatus(this.visitInfo.ticket.id, this.status, this.token).subscribe({
       next: (res: any) => {
         this.toastMessage = 'Estado de visita actualizado exitosamente.';
-        this.showSuccessToast = true;
         this.showStatusModal = false;
-        this.autoHideToast();
+        this.showToast('success');
         this.loadPage(this.currentPage);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar el estado de la visita.';
-        this.showErrorToast = true;
+        this.showToast('error');
         this.showStatusModal = false;
-        this.autoHideToast();
       }
     });
   }
 
-  private autoHideToast() {
-    setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
-    }, 3000);
+  async printTicket() {
+    if (!this.ticketPrint) return;
+    const element = this.ticketPrint.nativeElement;
+
+    // 1. Renderiza el HTML a canvas
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true
+    } as any);
+
+    const imgData = canvas.toDataURL('image/png');
+
+    // 2. Crea el PDF con unidad mm y tamaño personalizado (80 mm x auto)
+    const pdf = new jsPDF({
+      unit: 'mm',
+      format: [80, (canvas.height * 80) / canvas.width], // alto proporcional
+      orientation: 'portrait'
+    });
+
+    // 3. Añade la imagen al PDF
+    pdf.addImage(imgData, 'PNG', 0, 0, 80, (canvas.height * 80) / canvas.width);
+
+    // 4. Abre el diálogo de impresión directamente
+    pdf.autoPrint(); // marca para impresión
+    const blobUrl = pdf.output('bloburl');
+    const printWindow = window.open(blobUrl);
+    if (printWindow) {
+      printWindow.focus();
+      // En algunos navegadores es necesario un pequeño timeout
+      setTimeout(() => printWindow.print(), 500);
+    }
   }
+
+  private showToast(type: 'success' | 'error') {
+      const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+      if (!el) return;
+  
+      const toast = new Toast(el);
+      toast.show();
+      setTimeout(() => {
+        toast.hide();
+      }, 3000);
+    }
 
 }

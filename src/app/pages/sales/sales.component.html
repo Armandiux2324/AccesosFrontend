@@ -38,10 +38,12 @@
           <i class="bi bi-calendar-check-fill visit-icon me-4"></i>
           <div class="flex-grow-1">
             <h5 class="mb-1">Fecha de visita: {{ v.created_at | date:'dd/MM/yyyy':'UTC' }}</h5>
-            <p class="mb-0 text-muted">Contacto: {{ v.contact }}</p>
-            <p *ngIf="v.duration_minutes > 0" class="mb-0 text-muted">Duración de la visita: {{ v.duration_minutes | duration }}</p>
-            <p class="mb-0 text-muted">Municipio de procedencia: {{ v.township }}</p>
-            <p *ngIf="v.school" class="mb-0 text-muted">Escuela de procedencia: {{ v.school }}</p>
+            <p class="mb-0 text-muted"><strong>Contacto: </strong> {{ v.contact }}</p>
+            <p *ngIf="v.duration_minutes != null" class="mb-0 text-muted"><strong>Duración de la visita:</strong> {{ v.duration_minutes | duration }}</p>
+            <p class="mb-0 text-muted"><strong>Municipio de procedencia: </strong> {{ v.township }}</p>
+            <p *ngIf="v.school" class="mb-0 text-muted"><strong>Escuela de procedencia:</strong> {{ v.school }}</p>
+            <p *ngIf="v.datetime_begin != null" class="mb-0 text-muted"><strong>Inicio:</strong> {{ v.datetime_begin | date:'short' }}</p>
+            <p *ngIf="v.datetime_end != null" class="mb-0 text-muted"><strong>Fin:</strong> {{ v.datetime_end | date:'short' }}</p>
             <small *ngIf="v.ticket.status == 'Activo'" class="badge bg-success">Activa</small>
             <small *ngIf="v.ticket.status == 'Inactivo'" class="badge bg-secondary">Inactiva</small>
             <small *ngIf="v.ticket.status == 'Sin iniciar'" class="badge bg-warning">Sin iniciar</small>
@@ -50,9 +52,6 @@
             <button *ngIf="role == 'Taquilla'" class="btn btn-sm btn-outline-warning me-2 text-dark" (click)="onChangeStatus(v)">
               <i class="bi bi-pencil-square me-2"></i>
               Cambiar estado
-            </button>
-            <button class="btn btn-sm btn-outline-success me-2" (click)="promptViewPayment(v.id)">
-              <i class="bi bi-currency-dollar"></i>
             </button>
             <button class="btn btn-sm btn-outline-primary me-2" (click)="promptViewTicket(v.id)">
               <i class="bi bi-ticket-detailed"></i>
@@ -97,37 +96,25 @@
   </main>
 </div>
 
-<div
-  aria-live="polite"
-  aria-atomic="true"
-  class="position-fixed top-0 start-50 translate-middle-x p-3"
-  style="z-index: 1055; width: 100%; max-width: 400px;"
->
-  <div
-    *ngIf="showSuccessToast"
-    class="toast show align-items-center text-bg-success border-0 mx-auto"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
-      </div>
+<!-- Toasts -->
+<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <label class="me-auto">Información</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
     </div>
   </div>
 
-  <div
-    *ngIf="showErrorToast"
-    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
-      </div>
+  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-danger text-white">
+      <label class="me-auto">Error</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
     </div>
   </div>
 </div>
@@ -173,7 +160,7 @@
 <!-- Modal de ticket -->
 <div
   *ngIf="showTicketModal"
-  class="modal fade show"
+  class="modal fade show ticket-print-container"
   tabindex="-1"
   style="display: block; background: rgba(0,0,0,0.5);"
   aria-modal="true"
@@ -182,7 +169,7 @@
     <div class="modal-content ticket-modal">
 
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">Ticket de venta</h5>
+        <h5 class="modal-title p-0">Ticket de venta</h5>
         <button
           type="button"
           class="btn-close btn-close-white"
@@ -191,76 +178,142 @@
         ></button>
       </div>
 
-      <div class="modal-body ticket">
+      <div class="modal-body ticket" #ticketPrint>
         <div class="ticket-header text-center">
-          <h4 class="mb-1">Museo ZigZag</h4>
-          <small>Gracias por tu visita</small>
+          <img src="/gobzac.png" alt="" class="image mb-2">
+        </div>
+        <div class="ticket-header text-center">
+          <img src="/zz.png" alt="" class="image mb-2">
         </div>
         <hr class="ticket-separator" />
+        <div>
+          <p class="name">Zigzag - Centro Interactivo de Ciencia y Tecnología de Zacatecas</p>
+        </div>
+        <hr class="ticket-separator" />
+        <p class="short-text">Av. De la Juventud 502 Barros Sierra Zacatecas</p>
+        <div>
+          <table class="table">
+            <tr>
+              <td class="short-text">Teléfonos</td>
+              <td class="short-text">4929253308</td>
+            </tr>
+            <tr>
+              <td class="short-text"></td>
+              <td class="short-text">4929213228</td>
+            </tr>
+          </table>
+        </div>
+        <hr class="ticket-separator" />
+        <p class="short-text mb-0 mt-0">Nota No. {{ visitInfo.ticket.id }}</p>
+        <p class="short-text">{{ visitInfo.created_at }}</p>
 
         <div class="ticket-body">
           <div class="qr-container text-center mb-3">
             <img
               [src]="'http://localhost:3000/qr/' + visitInfo.ticket.qr"
               alt="QR Code"
-              class="qr-img"
+              class="qr-img mt-0"
             />
           </div>
-          <div class="ticket-info mb-2">
-            <p *ngIf="visitInfo.datetime_begin"><strong>Inicio:</strong> {{ visitInfo.datetime_begin | date:'short': 'UTC' }}</p>
-            <p *ngIf="visitInfo.datetime_end"><strong>Fin:</strong> {{ visitInfo.datetime_end | date:'short': 'UTC' }}</p>
-          </div>
-          <div class="ticket-counts mb-2">
-            <p *ngIf="adultsCount">Adultos: {{ adultsCount }}</p>
-            <p *ngIf="childrenCount">Niños:   {{ childrenCount }}</p>
-            <p *ngIf="seniorsCount">Adultos mayores: {{ seniorsCount }}</p>
-            <p *ngIf="disabledCount">Discapacitados: {{ disabledCount }}</p>
-            <p>Desc. acompaña.: {{ visitInfo.ticket.discount }}</p>
-          </div>
-          <hr class="ticket-separator" />
-          <div class="ticket-total text-end">
-            <h5>Total: {{ visitInfo.ticket.payment.total }}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de pago -->
-<div
-  *ngIf="showPaymentModal"
-  class="modal fade show"
-  tabindex="-1"
-  style="display: block; background: rgba(0,0,0,0.5);"
-  aria-modal="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content ticket-modal">
-
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title">Pago de visita</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          (click)="closePaymentModal()"
-          aria-label="Close"
-        ></button>
-      </div>
-
-      <div class="modal-body ticket">
-        <div class="ticket-header text-center">
-          <h4 class="mb-1">Información de pago</h4>
-        </div>
-        <hr class="ticket-separator" />
-
-        <div class="ticket-body">
-          <div class="ticket-info mb-2">
-            <p *ngIf="visitInfo.ticket.payment.payment_type == 'Tarjeta'"><strong>Referencia de pago:</strong> {{ visitInfo.ticket.payment.reference }}</p>
-            <p><strong>Tipo de pago: </strong>{{visitInfo.ticket.payment.payment_type}} </p>
-            <p><strong>Fecha y hora de pago:</strong>    {{ visitInfo.ticket.payment.payment_date | date:'short': 'UTC' }}</p>
-            <h5><strong>Total:</strong> ${{ visitInfo.ticket.payment.total }}</h5>
-          </div>
+          <table class="table text-center">
+            <thead>
+              <tr>
+                <td>C.</td>
+                <td>Producto</td>
+                <td class="text-center">Importe</td>
+              </tr>
+              <tr *ngIf="maleChildrenCount > 0">
+                <td class="text-center">{{ maleChildrenCount }}</td>
+                <td>Niño</td>
+                <td>{{ totalsByType['Niño'].male | currency }}</td>
+              </tr>
+              <tr *ngIf="femaleChildrenCount > 0">
+                <td class="text-center">{{ femaleChildrenCount }}</td>
+                <td>Niña</td>
+                <td>{{ totalsByType['Niño'].female | currency }}</td>
+              </tr>
+              <tr *ngIf="maleAdultsCount > 0">
+                <td class="text-center">{{ maleAdultsCount }}</td>
+                <td>Adulto hombre</td>
+                <td>{{ totalsByType['Adulto'].male | currency }}</td>
+              </tr>
+              <tr *ngIf="femaleAdultsCount > 0">
+                <td class="text-center">{{ femaleAdultsCount }}</td>
+                <td>Adulto mujer</td>
+                <td>{{ totalsByType['Adulto'].female | currency }}</td>
+              </tr>
+              <tr *ngIf="maleSeniorsCount > 0">
+                <td class="text-center">{{ maleSeniorsCount }}</td>
+                <td>Adulto mayor hombre</td>
+                <td>{{ totalsByType['Adulto Mayor'].male | currency }}</td>
+              </tr>
+              <tr *ngIf="femaleSeniorsCount > 0">
+                <td class="text-center">{{ femaleSeniorsCount }}</td>
+                <td>Adulto mayor mujer</td>
+                <td>{{ totalsByType['Adulto Mayor'].female | currency }}</td>
+              </tr>
+              <tr *ngIf="maleDisabledCount > 0">
+                <td class="text-center">{{ maleDisabledCount }}</td>
+                <td>Discapacitado hombre</td>
+                <td>{{ totalsByType['Discapacitado'].male | currency }}</td>
+              </tr>
+              <tr *ngIf="femaleDisabledCount > 0">
+                <td class="text-center">{{ femaleDisabledCount }}</td>
+                <td>Discapacitado mujer</td>
+                <td>{{ totalsByType['Discapacitado'].female | currency }}</td>
+              </tr>
+              <tr *ngIf="maleTeachersCount > 0">
+                <td class="text-center">{{ maleTeachersCount }}</td>
+                <td>Docente hombre</td>
+                <td>{{ totalsByType['Docente'].male | currency }}</td>
+              </tr>
+              <tr *ngIf="femaleTeachersCount > 0">
+                <td class="text-center">{{ femaleTeachersCount }}</td>
+                <td>Docente mujer</td>
+                <td>{{ totalsByType['Docente'].female | currency }}</td>
+              </tr>
+            </thead>
+          </table>
+          <table class="table text-center">
+            <tr>
+              <td>Sub Total:</td>
+              <td>{{ visitInfo.ticket.payment.total | currency }}</td>
+            </tr>
+            <tr>
+              <td>IVA: </td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>IEPS: </td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>ISH: </td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td><strong>Total:</strong></td>
+              <td>{{ visitInfo.ticket.payment.total | currency }}</td>
+            </tr>
+            <tr>
+              <td><strong>Efectivo: </strong></td>
+              <td>{{ visitInfo.ticket.payment.total || 0.0 | currency }}</td>
+            </tr>
+            <tr>
+              <td><strong>Tarjeta: </strong></td>
+              <td>{{ visitInfo.ticket.payment.card || 0.0 | currency }}</td>
+            </tr>
+            <tr>
+              <td><strong>Cheque: </strong></td>
+              <td>{{ visitInfo.ticket.payment.payment_check || 0.0 | currency }}</td>
+            </tr>
+            <tr>
+              <td><strong>Cambio:</strong></td>
+              <td>{{ visitInfo.ticket.payment.change || 0.0 | currency }}</td>
+            </tr>
+          </table>
+          <p>Total Descuento: {{ visitInfo.ticket.discount || 0.0 | currency }}</p>
+          <p class="text-center mb-0 mt-0" style="font-size: 0.5rem;">Esta actividad no causa impuesto al valor agregado ya que es de carácter educativo de acuerdo a lo previsto en en el art. 15 fracc. IV y XIII de la Ley del IVA.</p>
         </div>
       </div>
     </div>
@@ -332,14 +385,6 @@
               placeholder="Nombre de la escuela"
               [(ngModel)]="visitToAdd.school"
             />
-          </div>
-
-          <div class="mb-3">
-            <label for="payment_type" class="form-label">Método de pago</label>
-            <select name="payment_type" id="payment_type" class="form-control" [(ngModel)]="paymentData.payment_type">
-              <option value="Tarjeta" selected>Tarjeta</option>
-              <option value="Efectivo">Efectivo</option>
-            </select>
           </div>
 
           <label class="form-label">Agregar visitantes</label>
@@ -421,11 +466,11 @@
             </ul>
           </div>
 
-          <div class="mb-3">
-            <label for="discount" class="form-label">Descuento de acompañantes</label>
+          <div class="mb-3 mt-3">
+            <label for="discount" class="form-label">Descuento de acompañantes de discapacitados</label>
             <select name="discount" id="discount" class="form-control" [(ngModel)]="discount" (change)="onDiscountChange()">
-              <option value="Sí" selected>Sí</option>
-              <option value="No">No</option>
+              <option value="Sí">Sí</option>
+              <option value="No" selected>No</option>
             </select>
           </div>
 
@@ -442,6 +487,87 @@
               type="submit"
               class="btn btn-primary"
               [disabled]="formAdd.invalid || !visitors.length"
+              (click)="openAddPaymentModal()"
+            >
+              Proceder al pago
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de agregar pagos -->
+ <div
+  *ngIf="addPaymentModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background: #343a40;">
+        <h5 class="modal-title">Agregar pago</h5>
+        <button type="button" class="btn-close btn-close-white"
+                (click)="closeAddPaymentModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <form #formAddPayment="ngForm">
+
+          <div class="mb-3">
+            <label class="form-label"><strong>Total:</strong></label>
+            <div class="fs-4">
+              {{ total | currency }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="cash" class="form-label">Efectivo</label>
+            <input
+              id="cash"
+              type="number"
+              class="form-control"
+              name="cash"
+              placeholder="Efectivo"
+              [(ngModel)]="paymentData.cash"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="card" class="form-label">Tarjeta</label>
+            <input
+              id="card"
+              type="number"
+              class="form-control"
+              name="card"
+              placeholder="Tarjeta"
+              [(ngModel)]="paymentData.card"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="check" class="form-label">Cheque</label>
+            <input
+              id="check"
+              type="number"
+              class="form-control"
+              name="check"
+              placeholder="Cheque"
+              [(ngModel)]="paymentData.payment_check"
+            />
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeAddModal()">Cancelar</button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="formAddPayment.invalid "
               (click)="addVisit()"
             >
               Registrar visita

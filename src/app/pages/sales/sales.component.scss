@@ -24,6 +24,8 @@ input.form-control {
   max-width: 360px;
   border-radius: 0.5rem;
   overflow: hidden;
+  width: 80mm;
+  font-family: monospace;
 
   .modal-header {
     background: #28a745;
@@ -53,7 +55,7 @@ input.form-control {
 
     .ticket-separator {
       border: none;
-      border-top: 1px dashed #999;
+      border-top: 1px dashed;
       margin: 0.75rem 0;
     }
 
@@ -98,3 +100,31 @@ input.form-control {
   z-index: 2000 !important;
 }
 
+.image {
+  width: 50%;
+  height: auto;
+}
+
+.name{
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.short-text {
+  font-size: 0.6rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+td{
+  font-size: 0.8rem;
+}
+
+.toast-container {
+  z-index: 2000 !important;  /* más alto que el modal (1050) */
+}
+
+.toast {
+  z-index: 2001 !important;  /* un punto encima de su contenedor */
+}

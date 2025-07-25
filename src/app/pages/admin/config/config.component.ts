@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
+import { Toast } from 'bootstrap'; 
 
 @Component({
   selector: 'app-config',
@@ -21,8 +22,6 @@ export class ConfigComponent implements OnInit {
   private initialCapacity: number = 0;
   private initialCompanionDiscount: number = 0;
 
-  showSuccessToast = false;
-  showErrorToast = false;
   toastMessage = '';
 
   childPrice     = 0;
@@ -31,12 +30,14 @@ export class ConfigComponent implements OnInit {
   disabledPrice  = 0;
   studentPrice  = 0;
 
+  // Inicializar los precios y configuraciones
   ngOnInit() {
     this.token = localStorage.getItem('accessToken');
     this.getPrices();
     this.getSettings();
   }
 
+  // Obtener precios y configuraciones desde la API enviando el token y asignarlos a las variables correspondientes
   getPrices(){
     this.api.getPrices(this.token).subscribe({
       next: (data: any) => {
@@ -49,11 +50,13 @@ export class ConfigComponent implements OnInit {
         this.studentPrice = this.prices.find((p: { type: string; }) => p.type === 'Estudiante')?.price ?? 0;
       },
       error: (err: any) => {
-        console.error('Error fetching prices:', err);
+        this.toastMessage = 'Error al obtener precios';
+        this.showToast('error');
       }
     });
   }
 
+  // Obtener configuraciones desde la API enviando el token y asignarlos a las variables correspondientes
   getSettings() {
     this.api.getSettings(this.token).subscribe({
       next: (data: any) => {
@@ -63,65 +66,68 @@ export class ConfigComponent implements OnInit {
         this.companion_discount = data.data.companion_discount;
         this.initialCapacity = data.data.capacity;
         this.initialCompanionDiscount = data.data.companion_discount;
-        console.log('Settings fetched:', this.settingsObject);
       },
       error: (err: any) => {
-        console.error('Error fetching settings:', err);
+        this.toastMessage = 'Error al obtener configuraciones';
+        this.showToast('error');
       }
     });
   }
 
+  // Actualizar precios y configuraciones enviando el token, el ID y el precio de los registros a editar
   updatePrices() {
     const updates = this.prices.map((price: any) => ({
       id:    price.id,
       price: price.price
     }));
-    console.log('Updating prices:', updates);
 
     this.api.updatePrices(updates, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Precios actualizados correctamente';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.getPrices();
       },
       error: err => {
         this.toastMessage = 'Error al actualizar precios';
-        this.showErrorToast = true;
-        this.autoHideToast();
-        console.error(err);
+        this.showToast('error');
       }
     });
   }
 
+  // Actualizar configuraciones enviando el ID, la capacidad y el descuento de acompañante
   updateSettings() {
     this.api.updateSettings(this.settingsId, this.capacity, this.companion_discount, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Cambios guardados correctamente';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
         this.getSettings();
       },
       error: err => {
         this.toastMessage = 'Error al guardar cambios';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
 
+  // Verificar si los precios o configuraciones han cambiado
   get isPricesChanged(): boolean {
     return this.prices.some((p: any, i: number) => p.price !== this.initialPrices[i]);
   }
 
+  // Verificar si la capacidad o el descuento de acompañante han cambiado
   get isSettingsChanged(): boolean {
     return this.capacity !== this.initialCapacity || this.companion_discount !== this.initialCompanionDiscount;
   }
 
-  private autoHideToast() {
+  // Mostrar los toasts de éxito o error
+  private showToast(type: 'success' | 'error') {
+    const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
     setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
+      toast.hide();
     }, 3000);
   }
 

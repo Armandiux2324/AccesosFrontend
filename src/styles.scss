@@ -15,3 +15,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   z-index: 2000 !important;
 }
 
+.toast-container {
+  z-index: 2000 !important; 
+}
+
+.toast {
+  z-index: 2001 !important;
+}

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { Router } from '@angular/router';
+import { Toast } from 'bootstrap';
 
 @Component({
   selector: 'app-login',
@@ -12,8 +13,6 @@ export class LoginComponent {
   identificator = '';
   password = '';
 
-  showSuccessToast = false;
-  showErrorToast = false;
   toastMessage = '';
 
   constructor(
@@ -24,8 +23,7 @@ export class LoginComponent {
     login() {
       if (!this.identificator || !this.password) {
         this.toastMessage = 'Todos los campos son obligatorios.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
         return;
       }
 
@@ -36,32 +34,32 @@ export class LoginComponent {
           localStorage.setItem('role', data.user.role);
           localStorage.setItem('accessToken', data.accessToken);
           localStorage.setItem('refreshToken', data.refreshToken);
-          console.log(localStorage.getItem('accessToken'));
 
           this.toastMessage = 'Inicio de sesión exitoso';
-          this.showSuccessToast = true;
-          this.autoHideToast();
+          this.showToast('success');
 
-          setTimeout(() => {
-            if (data.user.role === 'Administrador') {
-              this.router.navigate(['/dashboard-admin']);
-            } else if (data.user.role === 'Taquilla') {
-              this.router.navigate(['/dashboard-seller']);
-            }
-          }, 1000);
+          if (data.user.role === 'Administrador') {
+            this.router.navigate(['/dashboard-admin']);
+          } else if (data.user.role === 'Taquilla') {
+            this.router.navigate(['/dashboard-seller']);
+          }
+
         },
         error: (error) => {
           this.toastMessage = "Error al iniciar sesión. Verifica tus datos";
-          this.showErrorToast = true;
-          this.autoHideToast();
+          this.showToast('error');
         }
       });
     }
 
-  private autoHideToast() {
+  private showToast(type: 'success' | 'error') {
+    const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
     setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
+      toast.hide();
     }, 3000);
   }
 }
