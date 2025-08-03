@@ -6,27 +6,27 @@
   </div>
   <ul class="nav flex-column mb-auto text-center" *ngIf="role == 'Administrador' || role == 'Directora'">
     <li class="nav-item">
-      <button routerLink="/dashboard-admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/dashboard-admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Inicio">
         <i class="bi bi-house-door-fill"></i>
       </button>
     </li>
     <li class="nav-item">
-      <button routerLink="/dashboard-admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/dashboard-admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Usuarios">
         <i class="bi bi-people-fill"></i>
       </button>
     </li>
     <li class="nav-item">
-      <button routerLink="/dashboard-admin/stats" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/dashboard-admin/stats" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Estadísticas">
         <i class="bi bi-bar-chart-line-fill"></i>
       </button>
     </li>
     <li class="nav-item">
-      <button routerLink="/dashboard-admin/config" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/dashboard-admin/config" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Configuración">
         <i class="bi bi-gear-fill"></i>
       </button>
     </li>
     <li class="nav-item">
-      <button routerLink="/sales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/visits" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Visitas">
         <i class="bi bi-calendar-check-fill"></i>
       </button>
     </li>
@@ -34,27 +34,28 @@
 
   <ul class="nav flex-column mb-auto text-center" *ngIf="role == 'Taquilla'">
     <li class="nav-item">
-      <button routerLink="/dashboard-seller" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/dashboard-seller" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Inicio">
         <i class="bi bi-house-door-fill"></i>
       </button>
     </li>
     <li class="nav-item">
-      <button routerLink="/sales" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn">
+      <button routerLink="/visits" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-btn" title="Visitas">
         <i class="bi bi-calendar-check-fill"></i>
       </button>
     </li>
   </ul>
 
   <div class="logout-container">
-    <button class="lower-btn profile-btn" (click)="openProfile()">
+    <button class="lower-btn profile-btn" (click)="openProfile()" title="Perfil">
       <i class="bi bi-person-circle"></i>
     </button>
-    <button class="lower-btn" (click)="logout()">
+    <button class="lower-btn" (click)="logout()" title="Cerrar sesión">
       <i class="bi bi-box-arrow-right"></i>
     </button>
   </div>
 </nav>
 
+<!-- Modal de perfil -->
 <div
   *ngIf="profileModal"
   class="modal fade show"
@@ -71,6 +72,7 @@
           class="btn-close btn-close-white ms-auto"
           (click)="closeProfile()"
           aria-label="Close"
+          title="Cerrar"
         ></button>
       </div>
 
@@ -88,113 +90,202 @@
         </div>
 
         <hr *ngIf="role == 'Administrador' || role == 'Directora'" class="my-3" />
-        <button class="btn btn-outline-primary w-100" (click)="openChangePassModal()" *ngIf="role == 'Administrador' || role == 'Directora'">
+        <button class="btn btn-outline-primary w-100 mb-3" (click)="openEditProfileModal()" *ngIf="role == 'Administrador' || role == 'Directora'">
+          <i class="bi bi-key-fill me-2"></i> Editar perfil
+        </button>
+        <button class="btn btn-outline-secondary w-100" (click)="openChangePassModal()" *ngIf="role == 'Administrador' || role == 'Directora'">
           <i class="bi bi-key-fill me-2"></i> Cambiar contraseña
         </button>
       </div>
     </div>
   </div>
+
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <label class="me-auto">Información</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
+    </div>
+  </div>
 </div>
 
 <!-- Modal de cambiar contraseña de administrador en sesión -->
-<div
-  *ngIf="showChangePassModal"
-  class="modal fade show change-pass-backdrop"
-  tabindex="-1"
-  style="display: block; background: rgba(0,0,0,0.5);"
-  aria-modal="true"
->
+<div *ngIf="showChangePassModal" class="modal fade show change-pass-backdrop" tabindex="-1"
+     style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true">
   <div class="modal-dialog modal-dialog-centered change-pass-dialog">
     <div class="modal-content change-pass-modal">
 
       <div class="modal-header text-white" style="background: #ffc107;">
         <h5 class="modal-title">Cambiar contraseña</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          (click)="closeChangePassModal()"
-          aria-label="Close"
-        ></button>
+        <button type="button" class="btn-close btn-close-white"
+                (click)="closeChangePassModal()" aria-label="Close"></button>
       </div>
 
       <div class="modal-body">
         <form (ngSubmit)="confirmChangePass()" #formPass="ngForm">
 
-          <div class="mb-3">
+          <!-- NUEVA CONTRASEÑA -->
+          <div class="mb-3 position-relative">
             <label class="form-label">Nueva contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              required
-              minlength="6"
-              [(ngModel)]="passwordData.newPass"
-              name="newPassword"
-            />
+            <div class="input-group">
+              <input
+                [type]="showNewPass ? 'text' : 'password'"
+                class="form-control"
+                required minlength="6"
+                pattern="(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+"
+                [(ngModel)]="passwordData.newPass"
+                name="newPass"
+                #newPassCtrl="ngModel"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="showNewPass = !showNewPass"
+                [attr.aria-label]="showNewPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i class="bi" [ngClass]="showNewPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+
+            <div *ngIf="newPassCtrl.invalid && (newPassCtrl.dirty || newPassCtrl.touched)"
+                 class="text-danger small mt-1">
+              <div *ngIf="newPassCtrl.errors?.['required']">La contraseña es obligatoria.</div>
+              <div *ngIf="newPassCtrl.errors?.['minlength']">Mínimo 6 caracteres.</div>
+              <div *ngIf="newPassCtrl.errors?.['pattern']">
+                Debe incluir mayúscula, número y carácter especial.
+              </div>
+            </div>
           </div>
 
-          <div class="mb-3">
+          <div class="mb-3 position-relative">
             <label class="form-label">Confirmar contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              required
-              [(ngModel)]="passwordData.confPass"
-              name="confPassword"
-            />
+            <div class="input-group">
+              <input
+                [type]="showConfPass ? 'text' : 'password'"
+                class="form-control"
+                required minlength="6"
+                [(ngModel)]="passwordData.confPass"
+                name="confPass"
+                #confPassCtrl="ngModel"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="showConfPass = !showConfPass"
+                [attr.aria-label]="showConfPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i class="bi" [ngClass]="showConfPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+            <div *ngIf="confPassCtrl.invalid && (confPassCtrl.dirty || confPassCtrl.touched)"
+                 class="text-danger small mt-1">
+              <div *ngIf="confPassCtrl.errors?.['required']">La confirmación es obligatoria.</div>
+              <div *ngIf="confPassCtrl.errors?.['minlength']">Mínimo 6 caracteres.</div>
+            </div>
+            <div *ngIf="passwordData.newPass && passwordData.confPass && passwordData.newPass !== passwordData.confPass"
+                 class="text-danger small mt-1">
+              Las contraseñas no coinciden.
+            </div>
           </div>
 
         </form>
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeChangePassModal()">
-          Cancelar
-        </button>
-        <button
-          class="btn btn-warning"
-          [disabled]="formPass.invalid"
-          (click)="confirmChangePass()"
-        >
+        <button class="btn btn-secondary" (click)="closeChangePassModal()">Cancelar</button>
+        <button class="btn btn-warning"
+                [disabled]="formPass.invalid || passwordData.newPass !== passwordData.confPass"
+                (click)="confirmChangePass()">
           Cambiar
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
+<!-- Modal de editar perfil -->
 <div
-  aria-live="polite"
-  aria-atomic="true"
-  class="position-fixed top-0 start-50 translate-middle-x p-3"
-  style="z-index: 1055; width: 100%; max-width: 400px;"
+  *ngIf="showEditProfileModal"
+  class="modal fade show"
+  tabindex="-1"
+  style="display: block; background: rgba(0,0,0,0.5);"
+  aria-modal="true"
 >
-  <div
-    *ngIf="showSuccessToast"
-    class="toast show align-items-center text-bg-success border-0 mx-auto"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header text-white" style="background: #343a40;">
+        <h5 class="modal-title">Editar usuario</h5>
+        <button type="button" class="btn-close btn-close-white"
+                (click)="closeEditProfileModal()"></button>
       </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="updateUser()" #formUpdate="ngForm"> 
+
+          <div class="mb-3">
+            <label class="form-label">Nombre completo</label>
+            <input type="text"  
+                   class="form-control"
+                   required
+                   [(ngModel)]="dataToUpdate.name"                   
+                   name="name" /> 
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Nombre de usuario</label>
+            <input type="text"
+                   class="form-control"
+                   required
+                    [(ngModel)]="dataToUpdate.username"
+                   name="username" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Correo electrónico</label>
+            <input type="email"
+                   class="form-control"
+                   required
+                   [(ngModel)]="dataToUpdate.email"
+                   name="email"
+                   #emailCtrl="ngModel"/>
+            <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)"
+              class="text-danger small mt-1">
+            <div *ngIf="emailCtrl.errors?.['email']">Formato de correo inválido.</div>
+          </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary"
+                (click)="closeEditProfileModal()">
+          Cancelar
+        </button>
+        <button class="btn btn-success"
+                [disabled]="formUpdate.invalid"
+                (click)="updateUser()">
+          Guardar cambios
+        </button>
+      </div>
+
     </div>
   </div>
 
-  <div
-    *ngIf="showErrorToast"
-    class="toast show align-items-center text-bg-danger border-0 mx-auto mt-2"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">
-        {{ toastMessage }}
-      </div>
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+  <div id="profileErrorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-danger text-white">
+      <label class="me-auto">Error</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
     </div>
   </div>
 </div>
+
 

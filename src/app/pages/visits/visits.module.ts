@@ -5,14 +5,14 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
-import { SalesRoutingModule } from './sales-routing.module';
-import { SalesComponent } from './sales.component';
+import { SalesRoutingModule } from './visits-routing.module';
+import { VisitsComponent } from './visits.component';
 import { DurationPipe } from '../../pipes/duration.pipe';
 
 
 @NgModule({
   declarations: [
-    SalesComponent
+    VisitsComponent
   ],
   imports: [
     CommonModule,
@@ -25,4 +25,4 @@ import { DurationPipe } from '../../pipes/duration.pipe';
     MatInputModule,
   ]
 })
-export class SalesModule { }
+export class VisitsModule { }

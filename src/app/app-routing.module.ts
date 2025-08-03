@@ -10,10 +10,10 @@ const routes: Routes = [
       import('./pages/login/login.module').then(m => m.LoginModule)
   },
   {
-    path: 'sales',                    
+    path: 'visits',
     component: LayoutComponent,
     loadChildren: () =>
-      import('./pages/sales/sales.module').then(m => m.SalesModule)
+      import('./pages/visits/visits.module').then(m => m.VisitsModule)
   },
   {
     path: 'dashboard-admin',

@@ -33,7 +33,10 @@ export class UsersComponent implements OnInit {
   dataToUpdate: any = {};
 
   showChangePassModal = false;
+  showNewPass = false;
+  showConfPass = false;
   passwordData: any = {};
+  showPass = false;
 
   showDeleteModal = false;
   userIdToDelete: any = null;
@@ -180,7 +183,7 @@ export class UsersComponent implements OnInit {
   confirmChangePass() {
     if (this.passwordData.newPass !== this.passwordData.confPass) {
       this.toastMessage = 'Las contraseñas no coinciden';
-      this.showToast('error');
+      this.showPasswordErrorToast();
       return;
     }
 
@@ -229,6 +232,17 @@ export class UsersComponent implements OnInit {
 
   private showToast(type: 'success' | 'error') {
     const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
+    setTimeout(() => {
+      toast.hide();
+    }, 3000);
+  }
+
+  private showPasswordErrorToast() {
+    const el = document.getElementById('passwordErrorToast');
     if (!el) return;
 
     const toast = new Toast(el);

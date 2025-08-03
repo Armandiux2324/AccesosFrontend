@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { Toast } from 'bootstrap';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,8 +15,6 @@ export class SidebarComponent implements OnInit{
   userId: any = null;
   role: any = null;
 
-  showSuccessToast = false;
-  showErrorToast = false;
   toastMessage = '';
 
   profileModal = false;
@@ -23,6 +22,11 @@ export class SidebarComponent implements OnInit{
 
   showChangePassModal = false;
   passwordData: any = {};
+  showNewPass = false;
+  showConfPass = false;
+
+  showEditProfileModal = false;
+  dataToUpdate: any = {};
 
   ngOnInit(){
     this.token = localStorage.getItem('accessToken');
@@ -41,7 +45,8 @@ export class SidebarComponent implements OnInit{
         this.userInfo = res.data;
       },
       error: (err: any) => {
-        console.error('Error fetching user info:', err);
+        this.toastMessage = 'Error al obtener información del usuario';
+        this.showToast('error');
       }
     });
     this.profileModal = true;
@@ -62,24 +67,16 @@ export class SidebarComponent implements OnInit{
   }
 
   confirmChangePass() {
-    if (this.passwordData.newPass !== this.passwordData.confPass) {
-      this.toastMessage = 'Las contraseñas no coinciden';
-      this.showErrorToast = true;
-      this.autoHideToast();
-      return;
-    }
-
     this.api.changePassword(this.passwordData.id, this.passwordData.newPass, this.passwordData.confPass, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Contraseña del usuario cambiada exitosamente.';
-        this.showSuccessToast = true;
-        this.autoHideToast();
+        this.showToast('success');
+        this.passwordData = { id: '', newPass: '', confPass: '' };
         this.closeChangePassModal();
       },
       error: (err: any) => {
         this.toastMessage = 'Error al cambiar contraseña';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -88,11 +85,59 @@ export class SidebarComponent implements OnInit{
     this.showChangePassModal = false;
   }
 
-  private autoHideToast() {
+  openEditProfileModal() {
+    this.showEditProfileModal = true;
+    this.api.getUserById(this.userId, this.token).subscribe({
+      next: (data: any) => {
+        this.dataToUpdate = data.data;
+      },
+      error: (error: any) => {
+        this.toastMessage = 'Error al cargar información del usuario.';
+        this.showToast('error');
+      }
+    });
+  }
+
+  closeEditProfileModal() {
+    this.showEditProfileModal = false;
+  }
+
+  updateUser() {
+    this.api.updateUser(this.dataToUpdate.id, this.dataToUpdate.name, this.dataToUpdate.username, this.dataToUpdate.email, this.role, this.token).subscribe({
+      next: (data: any) => {
+        this.toastMessage = 'Usuario actualizado exitosamente.';
+        this.showToast('success');
+        this.closeEditProfileModal();
+        this.dataToUpdate = {};
+        this.openProfile();
+      },
+      error: (error: any) => {
+        this.toastMessage = 'Error al actualizar usuario.';
+        this.showProfileErrorToast();
+      }
+    });
+  }
+
+  private showProfileErrorToast() {
+    const el = document.getElementById('profileErrorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
     setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
+      toast.hide();
     }, 3000);
   }
+
+  private showToast(type: 'success' | 'error') {
+      const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+      if (!el) return;
+  
+      const toast = new Toast(el);
+      toast.show();
+      setTimeout(() => {
+        toast.hide();
+      }, 3000);
+    }
 
 }

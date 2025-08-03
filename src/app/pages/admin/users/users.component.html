@@ -85,29 +85,6 @@
   </main>
 </div>
 
-<!-- Toasts -->
-<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
-  <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header bg-success text-white">
-      <label class="me-auto">Información</label>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body">
-      {{ toastMessage }}
-    </div>
-  </div>
-
-  <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header bg-danger text-white">
-      <label class="me-auto">Error</label>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body">
-      {{ toastMessage }}
-    </div>
-  </div>
-</div>
-
 <!-- Modal de agregar usuario -->
 <div
   *ngIf="showAddModal"
@@ -152,16 +129,48 @@
                    class="form-control"
                    required
                    [(ngModel)]="dataToAdd.email"
-                   name="email" />
+                   name="email"
+                   #emailCtrl="ngModel"/>
+            <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)"
+              class="text-danger small mt-1">
+            <div *ngIf="emailCtrl.errors?.['required']">El correo es obligatorio.</div>
+            <div *ngIf="emailCtrl.errors?.['email']">Formato de correo inválido.</div>
           </div>
+        </div>
 
           <div class="mb-3">
             <label class="form-label">Contraseña</label>
-            <input type="password"
+            <div class="input-group">
+              <input type="password"
                    class="form-control"
                    required
+                    minlength="6"
+                    pattern="(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+"
                    [(ngModel)]="dataToAdd.password"
-                   name="password" />
+                   name="password"
+                   [type]="showPass ? 'text' : 'password'"
+                   #passCtrl="ngModel"
+                    />
+                   <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    (click)="showPass = !showPass"
+                    [attr.aria-label]="showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  >
+                    <i class="bi" [ngClass]="showPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                  </button>
+            </div>
+
+            <div *ngIf="passCtrl.invalid && (passCtrl.dirty || passCtrl.touched)"
+                 class="text-danger small mt-1">
+              <div *ngIf="passCtrl.errors?.['required']">La contraseña es obligatoria.</div>
+              <div *ngIf="passCtrl.errors?.['minlength']">Mínimo 6 caracteres.</div>
+              <div *ngIf="passCtrl.errors?.['pattern']">La contraseña debe contener al menos una letra mayúscula, un número y un carácter especial.</div>
+            </div>
+            <div *ngIf="passwordData.newPass && passwordData.confPass && passwordData.newPass !== passwordData.confPass"
+                 class="text-danger small mt-1">
+              Las contraseñas no coinciden.
+            </div>
           </div>
 
           <div class="mb-3">
@@ -212,7 +221,7 @@
       </div>
 
       <div class="modal-body">
-        <form (ngSubmit)="updateUser()" #formAdd="ngForm"> 
+        <form (ngSubmit)="updateUser()" #formUpdate="ngForm"> 
 
           <div class="mb-3">
             <label class="form-label">Nombre completo</label>
@@ -238,7 +247,12 @@
                    class="form-control"
                    required
                    [(ngModel)]="dataToUpdate.email"
-                   name="email" />
+                   name="email"
+                   #emailCtrl="ngModel"/>
+            <div *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)"
+              class="text-danger small mt-1">
+            <div *ngIf="emailCtrl.errors?.['email']">Formato de correo inválido.</div>
+          </div>
           </div>
 
           <div class="mb-3">
@@ -261,7 +275,7 @@
           Cancelar
         </button>
         <button class="btn btn-success"
-                [disabled]="formAdd.invalid"
+                [disabled]="formUpdate.invalid"
                 (click)="updateUser()">
           Guardar cambios
         </button>
@@ -335,27 +349,66 @@
 
           <div class="mb-3">
             <label class="form-label">Nueva contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              required
-              minlength="6"
-              [(ngModel)]="passwordData.newPass"
-              name="newPassword"
-            />
+            <div class="input-group">
+              <input
+                [type]="showNewPass ? 'text' : 'password'"
+                class="form-control"
+                required minlength="6"
+                pattern="(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+"
+                [(ngModel)]="passwordData.newPass"
+                name="newPass"
+                #newPassCtrl="ngModel"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="showNewPass = !showNewPass"
+                [attr.aria-label]="showNewPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i class="bi" [ngClass]="showNewPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+
+            <div *ngIf="newPassCtrl.invalid && (newPassCtrl.dirty || newPassCtrl.touched)"
+                 class="text-danger small mt-1">
+              <div *ngIf="newPassCtrl.errors?.['required']">La contraseña es obligatoria.</div>
+              <div *ngIf="newPassCtrl.errors?.['minlength']">Mínimo 6 caracteres.</div>
+              <div *ngIf="newPassCtrl.errors?.['pattern']">
+                Debe incluir mayúscula, número y carácter especial.
+              </div>
+            </div>
           </div>
 
-          <div class="mb-3">
+          <div class="mb-3 position-relative">
             <label class="form-label">Confirmar contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              required
-              [(ngModel)]="passwordData.confPass"
-              name="confPassword"
-            />
+            <div class="input-group">
+              <input
+                [type]="showConfPass ? 'text' : 'password'"
+                class="form-control"
+                required minlength="6"
+                [(ngModel)]="passwordData.confPass"
+                name="confPass"
+                #confPassCtrl="ngModel"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                (click)="showConfPass = !showConfPass"
+                [attr.aria-label]="showConfPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i class="bi" [ngClass]="showConfPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+            <div *ngIf="confPassCtrl.invalid && (confPassCtrl.dirty || confPassCtrl.touched)"
+                 class="text-danger small mt-1">
+              <div *ngIf="confPassCtrl.errors?.['required']">La confirmación es obligatoria.</div>
+              <div *ngIf="confPassCtrl.errors?.['minlength']">Mínimo 6 caracteres.</div>
+            </div>
+            <div *ngIf="passwordData.newPass && passwordData.confPass && passwordData.newPass !== passwordData.confPass"
+                 class="text-danger small mt-1">
+              Las contraseñas no coinciden.
+            </div>
           </div>
-
         </form>
       </div>
 
@@ -374,5 +427,41 @@
 
     </div>
   </div>
+
+  <!-- Toast de error -->
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+    <div id="passwordErrorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-danger text-white">
+        <label class="me-auto">Error</label>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Toasts -->
+<div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+    <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <label class="me-auto">Información</label>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-danger text-white">
+        <label class="me-auto">Error</label>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
 

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { Router } from '@angular/router';
+import { Toast } from 'bootstrap';
 
 @Component({
   selector: 'app-dashboard-seller',
@@ -31,8 +32,6 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
   showStatusModal = false;
   status: any = null;
 
-  showSuccessToast = false;
-  showErrorToast = false;
   toastMessage = '';
 
   ngOnInit() {
@@ -62,12 +61,10 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
     this.api.getVisitsPaginated(1, 7, this.token).subscribe({
       next: (res: any) => {
         this.recentVisits = res.data;
-        console.log('Recent Visits:', this.recentVisits);
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar las visitas recientes.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -80,8 +77,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar el número de visitantes activos.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     })
   }
@@ -94,8 +90,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar el aforo máximo.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     })
   }
@@ -115,8 +110,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
       },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar las ventas totales.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     })
   }
@@ -130,8 +124,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
         },
         error: (err: any) => {
           this.toastMessage = 'Error al aplicar el filtro de ventas.';
-          this.showErrorToast = true;
-          this.autoHideToast();
+          this.showToast('error');
         }
       });
   }
@@ -157,8 +150,7 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
       }, 
       error: (error: any) => {
         this.toastMessage = 'Error al cargar la información de la visita.';
-        this.showErrorToast = true;
-        this.autoHideToast();
+        this.showToast('error');
       }
     });
   }
@@ -177,16 +169,14 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
     this.api.updateTicketStatus(this.visitInfo.ticket.id, this.status, this.token).subscribe({
       next: (res: any) => {
         this.toastMessage = 'Estado de visita actualizado exitosamente.';
-        this.showSuccessToast = true;
+        this.showToast('success');
         this.showStatusModal = false;
-        this.autoHideToast();
         this.refreshAll();
       },
       error: (error: any) => {
         this.toastMessage = 'Error al actualizar el estado de la visita.';
-        this.showErrorToast = true;
+        this.showToast('error');
         this.showStatusModal = false;
-        this.autoHideToast();
       }
     });
   }
@@ -197,13 +187,17 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
 
   redirectToAddVisit() {
     localStorage.setItem('showAddModal', 'true');
-    this.router.navigate(['/sales']);
+    this.router.navigate(['/visits']);
   }
 
-  private autoHideToast() {
-    setTimeout(() => {
-      this.showSuccessToast = false;
-      this.showErrorToast = false;
-    }, 3000);
-  }
+  private showToast(type: 'success' | 'error') {
+      const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+      if (!el) return;
+  
+      const toast = new Toast(el);
+      toast.show();
+      setTimeout(() => {
+        toast.hide();
+      }, 3000);
+    }
 }

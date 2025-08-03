@@ -53,10 +53,10 @@
               <i class="bi bi-pencil-square me-2"></i>
               Cambiar estado
             </button>
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="promptViewTicket(v.id)">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="promptViewTicket(v.id)" title="Ver ticket">
               <i class="bi bi-ticket-detailed"></i>
             </button>
-            <button class="btn btn-sm btn-outline-danger me-2" (click)="promptDeleteVisit(v.id)">
+            <button class="btn btn-sm btn-outline-danger me-2" (click)="promptDeleteVisit(v.id)" title="Eliminar visita">
               <i class="bi bi-trash-fill"></i>
             </button>
           </div>
@@ -137,6 +137,7 @@
           class="btn-close btn-close-white"
           (click)="cancelDelete()"
           aria-label="Close"
+          title="Cerrar"
         ></button>
       </div>
 
@@ -167,15 +168,26 @@
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content ticket-modal">
+      <div class="modal-header bg-success text-white d-flex align-items-center">
+        <h5 class="modal-title mb-0">Ticket de venta</h5>
+        <div class="ms-auto d-flex align-items-center">
+          <button
+            *ngIf="role == 'Taquilla'"
+            class="btn btn-light btn-sm me-2"
+            (click)="printTicket()"
+            title="Imprimir ticket"
+          >
+            <i class="bi bi-printer-fill"></i>
+          </button>
 
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title p-0">Ticket de venta</h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          (click)="closeTicketModal()"
-          aria-label="Close"
-        ></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            (click)="closeTicketModal()"
+            aria-label="Close"
+            title="Cerrar"
+          ></button>
+        </div>
       </div>
 
       <div class="modal-body ticket" #ticketPrint>
@@ -318,6 +330,16 @@
       </div>
     </div>
   </div>
+
+  <div id="visitAddedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <label class="me-auto">Información</label>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      {{ toastMessage }}
+    </div>
+  </div>
 </div>
 
 <!-- Modal de registro de visitas -->
@@ -333,8 +355,7 @@
 
       <div class="modal-header text-white" style="background: #343a40;">
         <h5 class="modal-title">Registrar visita</h5>
-        <button type="button" class="btn-close btn-close-white"
-                (click)="closeAddModal()"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddModal()" title="Cerrar"></button>
       </div>
 
       <div class="modal-body">
@@ -496,10 +517,23 @@
       </div>
     </div>
   </div>
+
+    <!-- Toast de error -->
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+    <div id="visitErrorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-danger text-white">
+        <label class="me-auto">Error</label>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal de agregar pagos -->
- <div
+<div
   *ngIf="addPaymentModal"
   class="modal fade show"
   tabindex="-1"
@@ -511,8 +545,7 @@
 
       <div class="modal-header text-white" style="background: #343a40;">
         <h5 class="modal-title">Agregar pago</h5>
-        <button type="button" class="btn-close btn-close-white"
-                (click)="closeAddPaymentModal()"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAddPaymentModal()" title="Cerrar"></button>
       </div>
 
       <div class="modal-body">
@@ -534,6 +567,9 @@
               name="cash"
               placeholder="Efectivo"
               [(ngModel)]="paymentData.cash"
+              (ngModelChange)="onPaymentChange()"
+              [max]="remaining + (paymentData.cash || 0)"
+              [disabled]="remaining === 0"
               required
             />
           </div>
@@ -547,6 +583,9 @@
               name="card"
               placeholder="Tarjeta"
               [(ngModel)]="paymentData.card"
+              (ngModelChange)="onPaymentChange()"
+              [max]="remaining + (paymentData.card || 0)"
+              [disabled]="remaining === 0"
             />
           </div>
 
@@ -556,14 +595,17 @@
               id="check"
               type="number"
               class="form-control"
-              name="check"
+              name="payment_check"
               placeholder="Cheque"
               [(ngModel)]="paymentData.payment_check"
+              (ngModelChange)="onPaymentChange()"
+              [max]="remaining + (paymentData.payment_check || 0)"
+              [disabled]="remaining === 0"
             />
           </div>
 
           <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeAddModal()">Cancelar</button>
+            <button class="btn btn-secondary" (click)="closeAddPaymentModal()">Cancelar</button>
             <button
               type="submit"
               class="btn btn-primary"
@@ -597,6 +639,7 @@
           class="btn-close btn-close-white"
           (click)="closeStatusModal()"
           aria-label="Close"
+          title="Cerrar"
         ></button>
       </div>
 

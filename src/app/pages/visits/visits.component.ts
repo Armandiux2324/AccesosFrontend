@@ -10,12 +10,12 @@ import { Observable } from 'rxjs';
 import { Toast } from 'bootstrap';
 
 @Component({
-  selector: 'app-sales',
+  selector: 'app-visits',
   standalone: false,
-  templateUrl: './sales.component.html',
-  styleUrl: './sales.component.scss'
+  templateUrl: './visits.component.html',
+  styleUrl: './visits.component.scss'
 })
-export class SalesComponent implements OnInit {
+export class VisitsComponent implements OnInit {
   @ViewChild('ticketPrint', { static: false }) ticketPrint!: ElementRef<HTMLDivElement>;
   constructor(private api: ApiService) { }
   token: any = null;
@@ -50,7 +50,11 @@ export class SalesComponent implements OnInit {
   visitIdToDelete: any = null;
 
   addPaymentModal: boolean = false;
-  paymentData: any = {};
+  paymentData: { cash: number; card?: number; payment_check?: number } = {
+    cash: 0.0,
+    card: 0.0,
+    payment_check: 0.0
+  };
 
   visitId: any = null;
   showTicketModal: boolean = false;
@@ -130,7 +134,7 @@ export class SalesComponent implements OnInit {
     this.loadPage(this.currentPage);
   }
 
-  getDiscount(){
+  getDiscount() {
     this.api.getSettings(this.token).subscribe({
       next: (res: any) => {
         this.discountValue = res.data.companion_discount;
@@ -338,10 +342,15 @@ export class SalesComponent implements OnInit {
   closeAddModal() {
     this.visitToAdd = {};
     this.visitors = [];
-    this.paymentData = {};
+    this.paymentData = {
+      cash: 0.0,
+      card: 0.0,
+      payment_check: 0.0
+    };
     this.total = 0;
     this.visitorInfo = {};
     this.showAddModal = false;
+    this.discount = '';
   }
 
   openAddPaymentModal() {
@@ -350,6 +359,11 @@ export class SalesComponent implements OnInit {
 
   closeAddPaymentModal() {
     this.addPaymentModal = false;
+    this.paymentData = {
+      cash: 0.0,
+      card: 0.0,
+      payment_check: 0.0
+    };
     this.visitId = null;
   }
 
@@ -372,9 +386,9 @@ export class SalesComponent implements OnInit {
         return priceObj?.type == 'Discapacitado';
       });
 
-      if(!hasDisabled){
+      if (!hasDisabled) {
         this.toastMessage = 'No se puede aplicar descuento: no hay visitantes discapacitados.';
-        this.showToast('error');
+        this.showVisitErrorToast();
         this.discount = 'No';
         this.total = this.calculateTotal();
         return;
@@ -382,7 +396,7 @@ export class SalesComponent implements OnInit {
       this.total = this.calculateTotal()
       this.visitors.forEach(visitor => {
         let v_price = visitor.price = this.prices.find(p => p.id == visitor.price_id);
-        if(v_price.type != 'Discapacitado') {
+        if (v_price.type != 'Discapacitado') {
           this.total = this.total - this.discountValue;
         }
       });
@@ -424,52 +438,64 @@ export class SalesComponent implements OnInit {
       next: (visitRes: any) => {
         this.visitors.forEach((visitor: any) => {
           this.api.addVisitor(visitRes.data.id, visitor.price_id, visitor.gender, this.token).subscribe({
-            next: (visitorRes: any) => {}, 
+            next: (visitorRes: any) => { },
             error: (err: any) => {
               this.toastMessage = 'Error al agregar visitante.';
-              this.showToast('error');
+              this.showVisitErrorToast();
             }
           });
         });
         let total = this.calculateTotal();
-        if(this.discount == 'Sí'){
+        if (this.discount == 'Sí') {
           total = total - this.discountValue;
         }
-        this.api.addPayment(this.paymentData.cash, this.paymentData.card, this.paymentData.payment_check, total, this.token).subscribe({
+        this.api.addPayment(
+          this.paymentData.cash ?? 0,
+          this.paymentData.card ?? 0,
+          this.paymentData.payment_check ?? 0,
+          total,
+          this.token
+        ).subscribe({
           next: (paymentRes: any) => {
             this.api.addTicket(visitRes.data.id, paymentRes.data.id, this.token).subscribe({
               next: (ticketRes: any) => {
                 this.visitToAdd = {};
                 this.visitors = [];
-                this.paymentData = {};
+                this.paymentData = {
+                  cash: 0.0,
+                  card: 0.0,
+                  payment_check: 0.0
+                };
                 this.quantity = 0;
                 this.discount = '';
 
                 this.promptViewTicket(visitRes.data.id);
                 this.showTicketModal = true;
-                this.printTicket();
 
                 this.showAddModal = false;
                 this.addPaymentModal = false;
                 this.toastMessage = 'Visita agregada exitosamente.';
-                this.showToast('success');
                 this.visits = [];
                 this.page = 1;
                 this.loadPage(1);
+                setTimeout(() => {
+                  this.printTicket();
+                  this.showVisitAddedToast();
+                }, 50);
               }
               , error: (err: any) => {
                 this.toastMessage = 'Error al agregar ticket.';
-                this.showToast('error');
+                this.showVisitErrorToast();
               }
             });
           }, error: (err: any) => {
             this.toastMessage = 'Error al agregar pago.';
-            this.showToast('error');
+            this.showVisitErrorToast();
           }
         });
       }, error: (err: any) => {
         this.toastMessage = 'Error al agregar visita.';
-        this.showToast('error');
+        this.showVisitErrorToast();
       }
     });
   }
@@ -479,7 +505,7 @@ export class SalesComponent implements OnInit {
       next: (res: any) => {
         this.visitInfo = res.data;
         this.status = this.visitInfo.ticket.status;
-      }, 
+      },
       error: (error: any) => {
         this.toastMessage = 'Error al cargar la información de la visita.';
         this.showToast('error');
@@ -497,7 +523,7 @@ export class SalesComponent implements OnInit {
     this.showStatusModal = false;
   }
 
-  updateStatus(){
+  updateStatus() {
     this.api.updateTicketStatus(this.visitInfo.ticket.id, this.status, this.token).subscribe({
       next: (res: any) => {
         this.toastMessage = 'Estado de visita actualizado exitosamente.';
@@ -517,44 +543,93 @@ export class SalesComponent implements OnInit {
     if (!this.ticketPrint) return;
     const element = this.ticketPrint.nativeElement;
 
-    // 1. Renderiza el HTML a canvas
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true
-    } as any);
-
+    // Renderizar a canvas
+    const canvas = await html2canvas(element, { useCORS: true });
     const imgData = canvas.toDataURL('image/png');
 
-    // 2. Crea el PDF con unidad mm y tamaño personalizado (80 mm x auto)
+    // Generar el PDF
     const pdf = new jsPDF({
       unit: 'mm',
-      format: [80, (canvas.height * 80) / canvas.width], // alto proporcional
+      format: [80, (canvas.height * 80) / canvas.width],
       orientation: 'portrait'
     });
-
-    // 3. Añade la imagen al PDF
     pdf.addImage(imgData, 'PNG', 0, 0, 80, (canvas.height * 80) / canvas.width);
 
-    // 4. Abre el diálogo de impresión directamente
-    pdf.autoPrint(); // marca para impresión
-    const blobUrl = pdf.output('bloburl');
-    const printWindow = window.open(blobUrl);
-    if (printWindow) {
-      printWindow.focus();
-      // En algunos navegadores es necesario un pequeño timeout
-      setTimeout(() => printWindow.print(), 500);
-    }
+    // Obtener el blob
+    const blob = pdf.output('blob');
+
+    // Crear un iframe oculto
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+
+    document.body.appendChild(iframe);
+
+    // Cargar el PDF en el iframe y llama al print
+    const url = URL.createObjectURL(blob);
+    iframe.src = url;
+
+    iframe.onload = () => {
+      iframe.contentWindow!.focus();
+      iframe.contentWindow!.print();
+
+      // Limpiar después de imprimir
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(iframe);
+      }, 500);
+    };
+  }
+
+  // Calcula cuánto falta por pagar
+  get remaining(): number {
+    const paid = (this.paymentData.cash || 0)
+               + (this.paymentData.card || 0)
+               + (this.paymentData.payment_check || 0);
+    return Math.max(this.total - paid, 0);
+  }
+
+  // Recalcula los valores de pago para que no sean negativos o mayores al total
+  onPaymentChange() {
+    // Asegura que ningún valor sea negativo o mayor al restante
+    this.paymentData.cash = Math.min(Math.max(this.paymentData.cash || 0, 0), this.total);
+    this.paymentData.card = Math.min(Math.max(this.paymentData.card || 0, 0), this.total);
+    this.paymentData.payment_check = Math.min(Math.max(this.paymentData.payment_check || 0, 0), this.total);
   }
 
   private showToast(type: 'success' | 'error') {
-      const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
-      if (!el) return;
-  
-      const toast = new Toast(el);
-      toast.show();
-      setTimeout(() => {
-        toast.hide();
-      }, 3000);
-    }
+    const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
+    setTimeout(() => {
+      toast.hide();
+    }, 3000);
+  }
+
+  private showVisitErrorToast() {
+    const el = document.getElementById('visitErrorToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
+    setTimeout(() => {
+      toast.hide();
+    }, 3000);
+  }
+
+  private showVisitAddedToast() {
+    const el = document.getElementById('visitAddedToast');
+    if (!el) return;
+
+    const toast = new Toast(el);
+    toast.show();
+    setTimeout(() => {
+      toast.hide();
+    }, 3000);
+  }
 
 }

@@ -24,11 +24,11 @@ export class ConfigComponent implements OnInit {
 
   toastMessage = '';
 
-  childPrice     = 0;
-  adultPrice     = 0;
-  seniorPrice    = 0;
-  disabledPrice  = 0;
-  studentPrice  = 0;
+  childPrice: number = 0;
+  adultPrice: number = 0;
+  seniorPrice: number = 0;
+  disabledPrice: number = 0;
+  studentPrice: number = 0;
 
   // Inicializar los precios y configuraciones
   ngOnInit() {
@@ -94,9 +94,9 @@ export class ConfigComponent implements OnInit {
     });
   }
 
-  // Actualizar configuraciones enviando el ID, la capacidad y el descuento de acompañante
+  // Actualizar configuraciones enviando la capacidad y el descuento de acompañante
   updateSettings() {
-    this.api.updateSettings(this.settingsId, this.capacity, this.companion_discount, this.token).subscribe({
+    this.api.updateSettings(this.capacity, this.companion_discount, this.token).subscribe({
       next: () => {
         this.toastMessage = 'Cambios guardados correctamente';
         this.showToast('success');

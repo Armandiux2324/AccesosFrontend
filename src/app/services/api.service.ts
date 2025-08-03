@@ -65,11 +65,6 @@ export class ApiService {
     return this.http.post(this.url + '/tickets', { visit_id, payment_id }, { headers });
   }
 
-  getTickets(token: string) {
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(this.url + '/tickets', { headers });
-  }
-
   getTodaySales(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/today-sales', { headers });
@@ -131,6 +126,10 @@ export class ApiService {
   }
 
   //Prices
+  addPrice(type: string, price: number, token: string) {
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.post(this.url + '/prices', { type, price }, { headers });
+  }
   getPrices(token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(this.url + '/prices', { headers });
@@ -147,9 +146,9 @@ export class ApiService {
     return this.http.get(this.url + '/settings', { headers });
   }
 
-  updateSettings(id: string, capacity: number, companion_discount: number, token: string) {
+  updateSettings(capacity: number, companion_discount: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.put(this.url + '/settings', { id, capacity, companion_discount }, { headers });
+    return this.http.put(this.url + '/settings', { capacity, companion_discount }, { headers });
   }
 
   //Visits
