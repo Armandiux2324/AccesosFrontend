@@ -15,24 +15,24 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
   name: any = null;
   private refreshTimerId!: number;
 
-  currentVisitors = 0;
-  capacity = 0;
-  occupancyPercent = 0;
+  currentVisitors: number = 0;
+  capacity: number = 0;
+  occupancyPercent: number = 0;
 
-  totalSales = 0;
-  salesFilter = false;
-  salesRange = { from: '', to: '' };
+  totalSales: number = 0;
+  salesFilter: boolean = false;
+  salesRange: { from: string; to: string } = { from: '', to: '' };
 
   recentVisits: any[] = [];
 
-  visitorTypes = ['Adulto', 'Niño', 'Adulto Mayor', 'Discapacitado'];
+  visitorTypes: string[] = ['Adulto', 'Niño', 'Adulto Mayor', 'Discapacitado'];
 
   visitId: any = null;
   visitInfo: any = {};
   showStatusModal = false;
   status: any = null;
 
-  toastMessage = '';
+  toastMessage: string = '';
 
   ngOnInit() {
     this.token = localStorage.getItem('accessToken');
@@ -188,6 +188,14 @@ export class DashboardSellerComponent implements OnInit, OnDestroy{
   redirectToAddVisit() {
     localStorage.setItem('showAddModal', 'true');
     this.router.navigate(['/visits']);
+  }
+
+  toggleSalesFilter() {
+    if (this.salesFilter == true) {
+      this.resetSalesFilter();
+    } else {
+      this.salesFilter = !this.salesFilter;
+    }
   }
 
   private showToast(type: 'success' | 'error') {

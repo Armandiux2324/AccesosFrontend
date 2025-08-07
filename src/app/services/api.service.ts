@@ -182,9 +182,9 @@ export class ApiService {
   }
 
   //Payments
-  addPayment(cash: number, card: number, payment_check: number, total: number, token: string) {
+  addPayment(cash: number, card: number, payment_check: number, total: number, total_discount: number, token: string) {
     const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.post(this.url + '/payments', { cash, card, payment_check, total }, { headers });
+    return this.http.post(this.url + '/payments', { cash, card, payment_check, total, total_discount }, { headers });
   }
 
 }

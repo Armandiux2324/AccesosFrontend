@@ -3,6 +3,7 @@ import { ApiService } from '../../../services/api.service';
 import { Chart, registerables } from 'chart.js';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { Toast } from 'bootstrap';
 
 // Definir la estructura de los datos de la gráfica
 interface ChartData { label: string; value: number; }
@@ -45,6 +46,8 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   // datos para gráfica
   chartData: ChartData[] = [];
   private chart!: Chart;
+
+  toastMessage: string = '';
 
   ngOnInit() {
     this.token = localStorage.getItem('accessToken');
@@ -139,14 +142,26 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     })
   }
 
+  toggleSalesFilter() {
+    if (this.salesFilter == true) {
+      this.resetSalesFilter();
+    } else {
+      this.salesFilter = !this.salesFilter;
+    }
+  }
+
   applySalesFilter() {
     if (!this.salesRange.from || !this.salesRange.to) return;
     this.api.getSalesInDateRange(this.salesRange.from, this.salesRange.to, this.token)
       .subscribe({
         next: (res: any) => {
           this.totalSales = res.salesInRange;
+          console.log('Sales in range:', this.totalSales);
         },
-        error: err => console.error('Error loading sales in range:', err)
+        error: (err: any) => {
+          this.toastMessage = 'Error al aplicar el filtro de ventas.';
+          this.showToast('error');
+        }
       });
   }
 
@@ -288,5 +303,16 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     const blob = new Blob([buffer], { type: 'application/octet-stream' });
     saveAs(blob, `estadisticas_${this.currentFilterLabel.replace(/[^a-z0-9]/gi, '_')}.xlsx`);
   }
+
+  private showToast(type: 'success' | 'error') {
+        const el = document.getElementById(type === 'success' ? 'successToast' : 'errorToast');
+        if (!el) return;
+    
+        const toast = new Toast(el);
+        toast.show();
+        setTimeout(() => {
+          toast.hide();
+        }, 3000);
+      }
 
 }

@@ -11,7 +11,8 @@
           <label for="identificator" class="form-label">
             Nombre de usuario o correo electrónico
           </label>
-          <input
+          <div class="input-group">
+            <input
             type="text"
             id="identificator"
             name="identificator"
@@ -19,19 +20,31 @@
             required
             [(ngModel)]="identificator"
           />
+          </div>
         </div>
 
         <div class="mb-3">
           <label for="password" class="form-label">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-control form-control-lg"
-            required
-            [(ngModel)]="password"
-          />
+          <div class="input-group">
+            <input
+              [type]="showPass ? 'text' : 'password'"
+              id="password"
+              name="password"
+              class="form-control form-control-lg" 
+              required
+              [(ngModel)]="password"
+            />
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              (click)="showPass = !showPass"
+              [attr.aria-label]="showPass ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="bi" [ngClass]="showPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
         </div>
+
 
         <div class="d-grid mb-3">
           <button class="btn btn-info btn-lg" type="submit">

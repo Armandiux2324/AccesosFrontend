@@ -15,17 +15,17 @@ export class SidebarComponent implements OnInit{
   userId: any = null;
   role: any = null;
 
-  toastMessage = '';
+  toastMessage: string = '';
 
-  profileModal = false;
+  profileModal: boolean = false;
   userInfo: any = {};
 
-  showChangePassModal = false;
+  showChangePassModal: boolean = false;
   passwordData: any = {};
-  showNewPass = false;
-  showConfPass = false;
+  showNewPass: boolean = false;
+  showConfPass: boolean = false;
 
-  showEditProfileModal = false;
+  showEditProfileModal: boolean = false;
   dataToUpdate: any = {};
 
   ngOnInit(){

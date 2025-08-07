@@ -10,10 +10,12 @@ import { Toast } from 'bootstrap';
   standalone: false,
 })
 export class LoginComponent {
-  identificator = '';
-  password = '';
+  identificator: string = '';
+  password: string = '';
 
-  toastMessage = '';
+  toastMessage: string = '';
+
+  showPass: boolean = false;
 
   constructor(
     private api: ApiService,

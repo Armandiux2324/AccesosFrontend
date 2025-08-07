@@ -25,7 +25,7 @@
             <div>
               <h6 class="mb-1">{{ salesFilter ? 'Ventas por fechas' : 'Ventas totales' }}</h6>
               <h3 class="mb-1">{{ totalSales | currency }}</h3>
-              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="salesFilter = !salesFilter">
+              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="toggleSalesFilter()">
                 {{ salesFilter ? 'Cerrar filtro' : 'Filtrar ventas' }}
               </button>
 
@@ -68,8 +68,8 @@
 
       </div>
       <div class="card-body">
-        <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <div class="table-responsive mb-2">
+        <table class="table table-hover">
             <thead>
             <tr>
                 <th class="text-center">Fecha</th>

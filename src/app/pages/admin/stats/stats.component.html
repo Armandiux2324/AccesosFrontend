@@ -33,7 +33,7 @@
             <div>
               <h6 class="mb-1">{{ salesFilter ? 'Ventas por fechas' : 'Ventas totales' }}</h6>
               <h3 class="mb-1">{{ totalSales | currency }}</h3>
-              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="salesFilter = !salesFilter">
+              <button class="btn btn-sm btn-outline-secondary mb-2" (click)="toggleSalesFilter()">
                 {{ salesFilter ? 'Cerrar filtro' : 'Filtrar ventas' }}
               </button>
 
@@ -50,6 +50,7 @@
                     type="date"
                     class="form-control date-filter"
                     [(ngModel)]="salesRange.to"
+                    (change)="applySalesFilter()"
                   />
                   <button
                     class="btn btn-outline-secondary"

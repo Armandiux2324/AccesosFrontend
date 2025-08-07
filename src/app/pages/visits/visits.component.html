@@ -324,20 +324,22 @@
               <td>{{ visitInfo.ticket.payment.change || 0.0 | currency }}</td>
             </tr>
           </table>
-          <p>Total Descuento: {{ visitInfo.ticket.discount || 0.0 | currency }}</p>
+          <p>Total Descuento: {{ visitInfo.ticket.payment.total_discount || 0.0 | currency }}</p>
           <p class="text-center mb-0 mt-0" style="font-size: 0.5rem;">Esta actividad no causa impuesto al valor agregado ya que es de carácter educativo de acuerdo a lo previsto en en el art. 15 fracc. IV y XIII de la Ley del IVA.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="visitAddedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header bg-success text-white">
-      <label class="me-auto">Información</label>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body">
-      {{ toastMessage }}
+  <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3">
+    <div id="visitAddedToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-success text-white">
+        <label class="me-auto">Información</label>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
     </div>
   </div>
 </div>
@@ -609,7 +611,7 @@
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="formAddPayment.invalid "
+              [disabled]="formAddPayment.invalid || remaining !== 0"
               (click)="addVisit()"
             >
               Registrar visita

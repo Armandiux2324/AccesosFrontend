@@ -43,6 +43,7 @@ export class VisitsComponent implements OnInit {
   visitors: any[] = [];
   visitToAdd: any = {};
   discount: any = '';
+  totalDiscounted: number = 0;
   quantity: number = 0;
   total: number = 0;
 
@@ -398,6 +399,7 @@ export class VisitsComponent implements OnInit {
         let v_price = visitor.price = this.prices.find(p => p.id == visitor.price_id);
         if (v_price.type != 'Discapacitado') {
           this.total = this.total - this.discountValue;
+          this.totalDiscounted += this.discountValue;
         }
       });
     } else {
@@ -454,6 +456,7 @@ export class VisitsComponent implements OnInit {
           this.paymentData.card ?? 0,
           this.paymentData.payment_check ?? 0,
           total,
+          this.totalDiscounted,
           this.token
         ).subscribe({
           next: (paymentRes: any) => {
@@ -540,44 +543,60 @@ export class VisitsComponent implements OnInit {
   }
 
   async printTicket() {
-    if (!this.ticketPrint) return;
-    const element = this.ticketPrint.nativeElement;
+  if (!this.ticketPrint) return;
+    const html = this.ticketPrint.nativeElement.innerHTML;
+    // recoge todos los <link> y <style> del <head>
+    const styles = Array.from(
+      document.querySelectorAll('head link[rel="stylesheet"], head style')
+    )
+      .map(el => el.outerHTML)
+      .join('\n');
 
-    // Renderizar a canvas
-    const canvas = await html2canvas(element, { useCORS: true });
-    const imgData = canvas.toDataURL('image/png');
-
-    // Generar el PDF
-    const pdf = new jsPDF({
-      unit: 'mm',
-      format: [80, (canvas.height * 80) / canvas.width],
-      orientation: 'portrait'
-    });
-    pdf.addImage(imgData, 'PNG', 0, 0, 80, (canvas.height * 80) / canvas.width);
-
-    // Obtener el blob
-    const blob = pdf.output('blob');
-
-    // Crear un iframe oculto
+    // crea un iframe oculto
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
     iframe.style.width = '0';
     iframe.style.height = '0';
     iframe.style.border = 'none';
-
     document.body.appendChild(iframe);
 
-    // Cargar el PDF en el iframe y llama al print
-    const url = URL.createObjectURL(blob);
-    iframe.src = url;
+    // escribe en su documento
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+    doc.open();
+    doc.write(`
+      <!doctype html>
+      <html>
+        <head>
+          ${styles}
+          <style>
+            @page {
+              size: 80mm auto;
+              margin: 5mm;           /* margen de impresión */
+            }
+            body {
+              margin: 0;
+              padding: 5mm;          /* espacio interior */
+              box-sizing: border-box;
+            }
+            .qr-img {
+              width: 120px !important;
+              height: 120px !important;
+            }
+          </style>
+        </head>
+        <body>${html}</body>
+      </html>
+    `);
+    doc.close();
 
+    // cuando esté listo, lanza print y elimina el iframe
     iframe.onload = () => {
       iframe.contentWindow!.focus();
       iframe.contentWindow!.print();
-
-      // Limpiar después de imprimir
       setTimeout(() => {
-        URL.revokeObjectURL(url);
         document.body.removeChild(iframe);
       }, 500);
     };
