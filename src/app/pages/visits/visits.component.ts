@@ -395,13 +395,8 @@ export class VisitsComponent implements OnInit {
         return;
       }
       this.total = this.calculateTotal()
-      this.visitors.forEach(visitor => {
-        let v_price = visitor.price = this.prices.find(p => p.id == visitor.price_id);
-        if (v_price.type != 'Discapacitado') {
-          this.total = this.total - this.discountValue;
-          this.totalDiscounted += this.discountValue;
-        }
-      });
+      this.total = this.total - this.discountValue;
+      this.totalDiscounted = this.discountValue;
     } else {
       this.total = this.calculateTotal();
     }
